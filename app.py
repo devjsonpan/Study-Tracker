@@ -44,7 +44,18 @@ class HomeworkTask(db.Model):
     username = db.Column(db.String, nullable=False)
     course = db.Column(db.String, nullable=False)
     task_name = db.Column(db.String, nullable=False)
-    due_date = db.Column(db.Date, nullable=False)
+    due_date = db.Column(db.DateTime, nullable=False)
+    is_completed = db.Column(db.Boolean, default=False, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+
+class Event(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, nullable=False)
+    event_name = db.Column(db.String, nullable=False)
+    start_datetime = db.Column(db.DateTime, nullable=False)
+    end_datetime = db.Column(db.DateTime, nullable=False)
+    location = db.Column(db.String, nullable=True)
+    description = db.Column(db.String, nullable=True)
     is_completed = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now)
 
@@ -250,10 +261,7 @@ def homework():
     # Combine them (incomplete first)
     tasks = incomplete_tasks + completed_tasks
     
-    # Pass current date to template
-    current_date = datetime.now().date()
-    
-    return render_template('homework.html', tasks=tasks, current_date=current_date)
+    return render_template('homework.html', tasks=tasks, now=datetime.now())
 
 # Route for saving new homework task
 @app.route('/save_homework', methods=['POST'])
@@ -266,7 +274,7 @@ def save_homework():
         username = session['username']
         
         # Convert string to date
-        due_date = datetime.strptime(due_date_str, '%Y-%m-%d').date()
+        due_date = datetime.strptime(due_date_str, '%Y-%m-%dT%H:%M')
         
         new_task = HomeworkTask(
             username=username,
@@ -311,6 +319,87 @@ def delete_task(task_id):
         db.session.commit()
     
     return redirect(url_for('homework'))
+
+# Route for the events page
+@app.route('/events')
+def events():
+    if session.get('username') == None:
+        return redirect(url_for('login'))
+    
+    username = session['username']
+    
+    incomplete_events = Event.query.filter_by(username=username, is_completed=False).order_by(Event.start_datetime).all()
+    completed_events = Event.query.filter_by(username=username, is_completed=True).order_by(Event.start_datetime).all()
+    
+    all_events = incomplete_events + completed_events
+    
+    return render_template('events.html', events=all_events, now=datetime.now())
+
+# Route for saving new event
+@app.route('/save_event', methods=['POST'])
+def save_event():
+    if request.method == 'POST':
+        event_name = request.form.get('event_name')
+        start_datetime_str = request.form.get('start_datetime')
+        end_datetime_str = request.form.get('end_datetime')
+        location = request.form.get('location')
+        description = request.form.get('description')
+        
+        username = session['username']
+        
+        # Convert string to datetime
+        start_datetime = datetime.strptime(start_datetime_str, '%Y-%m-%dT%H:%M')
+        end_datetime = datetime.strptime(end_datetime_str, '%Y-%m-%dT%H:%M')
+        
+        if start_datetime >= end_datetime:
+            flash('The start time must be before the end time.', 'error')
+            return redirect(url_for('events'))
+        
+        new_event = Event(
+            username=username,
+            event_name=event_name,
+            start_datetime=start_datetime,
+            end_datetime=end_datetime,
+            location=location,
+            description=description
+        )
+        
+        db.session.add(new_event)
+        db.session.commit()
+        
+        return redirect(url_for('events'))
+    
+    return redirect(url_for('events'))
+
+# Route for marking event as completed
+@app.route('/complete_event/<int:event_id>')
+def complete_event(event_id):
+    if session.get('username') == None:
+        return redirect(url_for('login'))
+    
+    event = Event.query.get_or_404(event_id)
+    
+    # Only allow user to complete their own events
+    if event.username == session['username']:
+        event.is_completed = not event.is_completed  # Toggle completion status
+        db.session.commit()
+    
+    return redirect(url_for('events'))
+
+# Route for deleting event
+@app.route('/delete_event/<int:event_id>')
+def delete_event(event_id):
+    if session.get('username') == None:
+        return redirect(url_for('login'))
+    
+    event = Event.query.get_or_404(event_id)
+    
+    # Only allow user to delete their own events
+    if event.username == session['username']:
+        db.session.delete(event)
+        db.session.commit()
+    
+    return redirect(url_for('events'))
 
 # Route for the break page
 @app.route('/break')
@@ -406,38 +495,94 @@ def edit_note(session_id):
 @app.route('/summary')
 def study_summary():
     current_date = datetime.now()
-
     current_username = session.get('username')
     
-    if current_username == None:
+    if current_username is None:
         return redirect(url_for('login'))
 
     all_users = User.query.all()
 
-    current_user = None
-    for user in all_users:
-        if user.username == current_username:
-            current_user = user
-            break
-
+    # Put current user first
+    current_user = next((u for u in all_users if u.username == current_username), None)
     if current_user:
         all_users.remove(current_user)
-
-    if current_user:
         all_users.insert(0, current_user)
 
-    all_study_session_data = []
-    all_break_data = []
+    # Friends comparison data
+    friend_names = []
+    friend_study_hours = []
+    friend_break_hours = []
 
     for user in all_users:
-        study_session_data = StudySession.query.filter_by(username=user.username).all()
-        all_study_session_data.append(study_session_data)
+        sessions = StudySession.query.filter_by(username=user.username).all()
+        breaks = BreakEntry.query.filter_by(username=user.username).all()
 
-        break_data = BreakEntry.query.filter_by(username=user.username).all()
-        all_break_data.append(break_data)
+        total_study_mins = sum(
+            (s.time_out.hour * 60 + s.time_out.minute) -
+            (s.time_in.hour * 60 + s.time_in.minute)
+            for s in sessions
+        )
+        total_break_mins = sum(
+            (b.time_out.hour * 60 + b.time_out.minute) -
+            (b.time_in.hour * 60 + b.time_in.minute)
+            for b in breaks
+        )
 
-    return render_template('study_summary.html', current_date=current_date, all_users=all_users, 
-                         all_study_session_data=all_study_session_data, all_break_data=all_break_data)
+        friend_names.append(user.fullname)
+        friend_study_hours.append(round(total_study_mins / 60, 1))
+        friend_break_hours.append(round(total_break_mins / 60, 1))
+    
+    # Sort all three lists together by study hours (highest first)
+    sorted_friends = sorted(zip(friend_study_hours, friend_break_hours, friend_names), reverse=True)
+    friend_study_hours, friend_break_hours, friend_names = map(list, zip(*sorted_friends)) if sorted_friends else ([], [], [])
+
+    # Self analytics data
+    my_sessions = StudySession.query.filter_by(username=current_username).order_by(StudySession.date).all()
+    my_breaks = BreakEntry.query.filter_by(username=current_username).order_by(BreakEntry.date).all()
+
+    # Course breakdown (minutes per course)
+    course_totals = {}
+    for s in my_sessions:
+        mins = (s.time_out.hour * 60 + s.time_out.minute) - (s.time_in.hour * 60 + s.time_in.minute)
+        course_totals[s.course] = course_totals.get(s.course, 0) + mins
+
+    course_labels = list(course_totals.keys())
+    course_hours = [round(m / 60, 1) for m in course_totals.values()]
+
+    # Study hours per day (last 14 days)
+    from collections import defaultdict
+    daily_study = defaultdict(float)
+    daily_break = defaultdict(float)
+
+    for s in my_sessions:
+        mins = (s.time_out.hour * 60 + s.time_out.minute) - (s.time_in.hour * 60 + s.time_in.minute)
+        daily_study[s.date.strftime('%b %d')] += round(mins / 60, 1)
+
+    for b in my_breaks:
+        mins = (b.time_out.hour * 60 + b.time_out.minute) - (b.time_in.hour * 60 + b.time_in.minute)
+        daily_break[b.date.strftime('%b %d')] += round(mins / 60, 1)
+
+    # Merge all dates and sort
+    all_dates = sorted(set(list(daily_study.keys()) + list(daily_break.keys())))
+    daily_labels = all_dates[-14:]  # last 14 days max
+    daily_study_values = [daily_study.get(d, 0) for d in daily_labels]
+    daily_break_values = [daily_break.get(d, 0) for d in daily_labels]
+
+    return render_template('study_summary.html',
+        current_date=current_date,
+        current_username=current_username,
+        current_fullname=current_user.fullname if current_user else '',
+        # Friends chart
+        friend_names=friend_names,
+        friend_study_hours=friend_study_hours,
+        friend_break_hours=friend_break_hours,
+        # Self chart
+        course_labels=course_labels,
+        course_hours=course_hours,
+        daily_labels=daily_labels,
+        daily_study_values=daily_study_values,
+        daily_break_values=daily_break_values,
+    )
 
 # Main block to run the application
 if __name__ == '__main__':

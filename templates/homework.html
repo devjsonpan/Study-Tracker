@@ -16,6 +16,7 @@
         <a href="{{url_for('study_session')}}" class="button">Study Session</a>
         <a href="#" class="button homework">Homework Tasks</a>
         <a href="{{url_for('notes')}}" class="button">Notes</a>
+        <a href="{{url_for('events')}}" class="button">Events</a>
         <a href="{{url_for('break_time')}}" class="button">Break Time</a>
         <a href="{{url_for('study_summary')}}" class="button">Study Summary</a>
     </div>
@@ -37,8 +38,8 @@
             </div>
 
             <div class="form-group">
-                <label for="due_date">Due Date:</label>
-                <input type="date" id="due_date" name="due_date" required>
+                <label for="due_date">Deadline:</label>
+                <input type="datetime-local" id="due_date" name="due_date" required>
             </div>
 
             <button type="submit" class="submit-button">Add Task</button>
@@ -52,9 +53,9 @@
                     <div class="task-info">
                         <div class="task-course">{{ task.course }}</div>
                         <div class="task-name {% if task.is_completed %}completed{% endif %}">{{ task.task_name }}</div>
-                        <div class="task-due {% if task.due_date < current_date and not task.is_completed %}overdue{% endif %}">
-                            Due: {{ task.due_date.strftime('%B %d, %Y') }}
-                            {% if task.due_date < current_date and not task.is_completed %}
+                        <div class="task-due {% if task.due_date < now and not task.is_completed %}overdue{% endif %}">
+                            Due: {{ task.due_date.strftime('%B %d, %Y at %I:%M %p') }}
+                            {% if task.due_date < now and not task.is_completed %}
                                 (OVERDUE!)
                             {% endif %}
                         </div>

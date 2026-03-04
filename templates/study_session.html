@@ -16,6 +16,7 @@
         <a href="#" class="button studysession">Study Session</a>
         <a href="{{url_for('homework')}}" class="button">Homework Tasks</a>
         <a href="{{url_for('notes')}}" class="button">Notes</a>
+        <a href="{{url_for('events')}}" class="button">Events</a>
         <a href="{{url_for('break_time')}}" class="button">Break Time</a>
         <a href="{{url_for('study_summary')}}" class="button">Study Summary</a>
     </div>
@@ -32,7 +33,7 @@
             </div>
 
             <div class="form-group">
-                <label for="topic">Topic (Optional):</label>
+                <label for="topic">Topic: <span class="optional-label">(optional)</span></label>
                 <input type="text" id="topic" name="topic" placeholder="Example: Recursion">
             </div>
 
@@ -50,7 +51,7 @@
             </div>
 
             <div class="form-group">
-                <label for="notes">Notes (Optional):</label>
+                <label for="notes">Notes: <span class="optional-label">(optional)</span></label>
                 <textarea id="notes" name="notes" placeholder="What did you learn? Any challenges?"></textarea>
             </div>
 
@@ -64,11 +65,11 @@
             <div class="form-group">
                 {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                <div class="error-message">
-                    {% for category, message in messages %}
-                    <p>{{ message }}</p>
-                    {% endfor %}
-                </div>
+                    <div class="error-message">
+                        {% for category, message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
                 {% endif %}
                 {% endwith %}
             </div>

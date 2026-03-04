@@ -59,14 +59,12 @@ body {
     transform: translateX(5px);
 }
 
-/* Active page button - Different for study session */
-.side-panel .button.studysession {
+.side-panel .button.events {
     background-color: rgba(102, 126, 234, 0.3);
     color: white;
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
-/* Add icons to sidebar buttons */
 .side-panel > .button:nth-child(2)::before { content: "🏠"; }
 .side-panel > .button:nth-child(3)::before { content: "📖"; }
 .side-panel > .button:nth-child(4)::before { content: "✅"; }
@@ -75,21 +73,30 @@ body {
 .side-panel > .button:nth-child(7)::before { content: "☕"; }
 .side-panel > .button:nth-child(8)::before { content: "📊"; }
 
-/* Form styling - Keep your existing form styles */
-.session-form {
+.events-form {
     max-width: 900px;
     margin: auto;
+    margin-bottom: 25px;
     background: white;
     padding: 40px;
     border-radius: 15px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.session-form h1 {
+.events-form h1 {
     color: #667eea;
     margin-top: 0;
     margin-bottom: 30px;
     text-align: center;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-row .form-group {
+    flex: 1;
 }
 
 .form-group {
@@ -118,6 +125,7 @@ textarea {
     border: 2px solid #e2e8f0;
     border-radius: 8px;
     font-size: 14px;
+    font-family: Arial, sans-serif;
     transition: border-color 0.3s;
 }
 
@@ -128,30 +136,10 @@ textarea:focus {
     border-color: #667eea;
 }
 
-.time-inputs {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
 textarea {
     resize: vertical;
-    min-height: 80px;
-    font-family: Arial, sans-serif;
 }
 
-.confirm-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.confirm-group input[type="checkbox"] {
-    width: auto;
-    cursor: pointer;
-}
-
-/* Submit button - Different from sidebar buttons */
 .submit-button {
     display: block;
     width: 100%;
@@ -171,6 +159,112 @@ textarea {
     background-color: #5568d3;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.events-list {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 40px;
+}
+
+.events-list h2 {
+    color: #667eea;
+    margin-top: 0;
+    margin-bottom: 0px;
+}
+
+.event-item {
+    background: #f7fafc;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.event-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.event-item.completed {
+    opacity: 0.6;
+    border-left-color: #48bb78;
+    background: #f0fff4;
+}
+
+.event-info {
+    flex: 1;
+}
+
+.event-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 6px;
+}
+
+.event-name.completed {
+    text-decoration: line-through;
+}
+
+.event-dates {
+    color: #4a5568;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.past-label {
+    color: #e53e3e;
+    font-weight: 600;
+}
+
+.event-meta {
+    color: #718096;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.event-description {
+    padding-top: 5px;
+    max-width: 600px;
+}
+
+.event-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.action-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: white;
+}
+
+.complete-button { background-color: #48bb78; }
+.complete-button:hover { background-color: #38a169; }
+.uncomplete-button { background-color: #ed8936; }
+.uncomplete-button:hover { background-color: #dd6b20; }
+.delete-button { background-color: #f56565; }
+.delete-button:hover { background-color: #e53e3e; }
+
+.no-events {
+    text-align: center;
+    color: #718096;
+    padding: 30px;
+    font-style: italic;
 }
 
 .logout-button {
@@ -207,5 +301,3 @@ textarea {
     font-weight: bold;
     text-align: center;
 }
-
-

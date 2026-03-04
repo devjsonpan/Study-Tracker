@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='study_summary.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 
 <body>
@@ -16,6 +17,7 @@
         <a href="{{url_for('study_session')}}" class="button">Study Session</a>
         <a href="{{url_for('homework')}}" class="button">Homework Tasks</a>
         <a href="{{url_for('notes')}}" class="button">Notes</a>
+        <a href="{{url_for('events')}}" class="button">Events</a>
         <a href="{{url_for('break_time')}}" class="button">Break Time</a>
         <a href="#" class="button studysummary">Study Summary</a>
     </div>
@@ -24,75 +26,222 @@
         <a href="{{url_for('login')}}" class="logout-button">Logout</a>
 
         <div class="summary-header">
-            <h1>📊 Study Summary Dashboard</h1>
-            <p>View study sessions and progress for all users</p>
+            <h1>📊 Study Summary</h1>
+            <p>{{ current_date.strftime('%B %d, %Y') }}</p>
         </div>
 
-        <div class="table-container">
-            <table>
-                <tr>
-                    <th>Name</th>
-                    <th>Date</th>
-                    <th>Study Sessions</th>
-                    <th>Breaks</th>
-                    <th>Total Hours</th>
-                </tr>
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('friends')">👥 Friends</button>
+                <button class="tab" onclick="switchTab('mystats')">📈 My Stats</button>
+            </div>
+        </div>
 
-                {% for user in all_users %}
-                <tr>
-                    <td class="user-name">{{ user.fullname }}</td>
-                    <td>{{ current_date.strftime('%Y-%m-%d') }}</td>
-                    
-                    <td>
-                        {% if all_study_session_data[loop.index0] %}
-                            {% for entry in all_study_session_data[loop.index0] %}
-                            <div class="session-entry">
-                                <span class="course-badge">{{ entry.course }}</span>
-                                {{ entry.time_in.strftime('%H:%M') }} - {{ entry.time_out.strftime('%H:%M') }}
-                                {% if entry.topic %}
-                                <br><small>📝 {{ entry.topic }}</small>
-                                {% endif %}
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <span class="no-data">No sessions logged</span>
-                        {% endif %}
-                    </td>
+        <!-- Friends Tab -->
+        <div id="tab-friends" class="tab-content active">
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>📖 Total Hours Studied</h3>
+                    <p class="chart-subtitle">All time, across all sessions</p>
+                    <div class="chart-wrapper">
+                        <canvas id="studyChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>☕ Total Break Time</h3>
+                    <p class="chart-subtitle">All time, across all breaks</p>
+                    <div class="chart-wrapper">
+                        <canvas id="breakChart"></canvas>
+                    </div>
+                </div>
+            </div>
 
-                    <td>
-                        {% if all_break_data[loop.index0] %}
-                            {% for entry in all_break_data[loop.index0] %}
-                            <div class="session-entry">
-                                {{ entry.time_in.strftime('%H:%M') }} - {{ entry.time_out.strftime('%H:%M') }}
-                            </div>
-                            {% endfor %}
-                        {% else %}
-                            <span class="no-data">No breaks logged</span>
-                        {% endif %}
-                    </td>
+            <!-- Leaderboard -->
+            <div class="leaderboard-card">
+                <h3>🏆 Leaderboard</h3>
+                <div class="leaderboard">
+                    {% for i in range(friend_names|length) %}
+                    <div class="leaderboard-row {% if friend_names[i] == current_fullname %}is-you{% endif %}">
+                        <div class="rank">
+                            {% if i == 0 %}🥇{% elif i == 1 %}🥈{% elif i == 2 %}🥉{% else %}#{{ i+1 }}{% endif %}
+                        </div>
+                        <div class="lb-name">
+                            {{ friend_names[i] }}
+                            {% if friend_names[i] == current_fullname %}<span class="you-badge">you</span>{% endif %}
+                        </div>
+                        <div class="lb-hours">{{ friend_study_hours[i] }}h studied</div>
+                        <div class="lb-break">{{ friend_break_hours[i] }}h breaks</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
 
-                    <td class="total-hours">
-                        {% set total_minutes_worked_list = [] %}
-                        {% for entry in all_study_session_data[loop.index0] %}
-                            {% set time_in_minutes = entry.time_in.hour * 60 + entry.time_in.minute %}
-                            {% set time_out_minutes = entry.time_out.hour * 60 + entry.time_out.minute %}
-                            {% set minutes_worked = time_out_minutes - time_in_minutes %}
-                            {% set new_list = total_minutes_worked_list.append(minutes_worked) %}
-                        {% endfor %}
-                        {% set total_minutes_worked = total_minutes_worked_list | sum %}
-                        {% set total_hours_worked = total_minutes_worked // 60 %}
-                        {% set remaining_minutes = total_minutes_worked % 60 %}
-                        
-                        {% if total_minutes_worked > 0 %}
-                            {{ total_hours_worked }}h {{ remaining_minutes }}m
-                        {% else %}
-                            <span class="no-data">0h 0m</span>
-                        {% endif %}
-                    </td>          
-                </tr>
-                {% endfor %}
-            </table>
+        <!-- My Stats Tab -->
+        <div id="tab-mystats" class="tab-content">
+            {% if course_labels %}
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>📚 Time by Course</h3>
+                    <p class="chart-subtitle">Total hours per subject</p>
+                    <div class="chart-wrapper chart-wrapper--donut">
+                        <canvas id="courseChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>📅 Daily Activity</h3>
+                    <p class="chart-subtitle">Study vs break hours per day</p>
+                    <div class="chart-wrapper">
+                        <canvas id="dailyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <h3>No data yet!</h3>
+                <p>Log some study sessions to see your personal stats here.</p>
+                <a href="{{ url_for('study_session') }}" class="add-session-button">Log a Session</a>
+            </div>
+            {% endif %}
         </div>
     </div>
+
+    <script>
+        // Tab switching
+        function switchTab(name) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
+            document.getElementById('tab-' + name).classList.add('active');
+        }
+
+        // Data from Flask
+        const friendNames      = {{ friend_names | tojson }};
+        const friendStudy      = {{ friend_study_hours | tojson }};
+        const friendBreak      = {{ friend_break_hours | tojson }};
+        const courseLabels     = {{ course_labels | tojson }};
+        const courseHours      = {{ course_hours | tojson }};
+        const dailyLabels      = {{ daily_labels | tojson }};
+        const dailyStudy       = {{ daily_study_values | tojson }};
+        const dailyBreak       = {{ daily_break_values | tojson }};
+
+        function generateColors(count) {
+            const colors = [];
+            for (let i = 0; i < count; i++) {
+                const hue = (i * 137.5) % 360; // golden angle spread — keeps colors distinct
+                colors.push(`hsl(${hue}, 65%, 60%)`);
+            }
+            return colors;
+        }
+
+        Chart.defaults.font.family = 'Arial, sans-serif';
+        Chart.defaults.color = '#4a5568';
+
+        // Study hours bar
+        new Chart(document.getElementById('studyChart'), {
+            type: 'bar',
+            data: {
+                labels: friendNames,
+                datasets: [{
+                    label: 'Hours Studied',
+                    data: friendStudy,
+                    backgroundColor: '#667eea',
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { callback: v => v + 'h' } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Break hours bar
+        new Chart(document.getElementById('breakChart'), {
+            type: 'bar',
+            data: {
+                labels: friendNames,
+                datasets: [{
+                    label: 'Break Hours',
+                    data: friendBreak,
+                    backgroundColor: '#f6ad55',
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { callback: v => v + 'h' } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Course donut
+        if (courseLabels.length > 0) {
+            new Chart(document.getElementById('courseChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: courseLabels,
+                    datasets: [{
+                        data: courseHours,
+                        backgroundColor: generateColors(courseLabels.length),
+                        borderWidth: 2,
+                        borderColor: '#fff',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { padding: 15 } },
+                        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}h` } }
+                    },
+                    cutout: '65%',
+                }
+            });
+
+            // Daily bar
+            new Chart(document.getElementById('dailyChart'), {
+                type: 'bar',
+                data: {
+                    labels: dailyLabels,
+                    datasets: [
+                        {
+                            label: 'Study',
+                            data: dailyStudy,
+                            backgroundColor: '#667eea',
+                            borderRadius: 6,
+                            borderSkipped: false,
+                        },
+                        {
+                            label: 'Break',
+                            data: dailyBreak,
+                            backgroundColor: '#f6ad55',
+                            borderRadius: 6,
+                            borderSkipped: false,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { callback: v => v + 'h' } }
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 </html>

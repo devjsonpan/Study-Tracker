@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Events</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='events.css') }}">
+</head>
+
+<body>
+    <div class="side-panel">
+        <div class="side-panel-logo">
+            <h2>📚 Study Tracker</h2>
+        </div>
+        <a href="{{url_for('home')}}" class="button">Home</a>
+        <a href="{{url_for('study_session')}}" class="button">Study Session</a>
+        <a href="{{url_for('homework')}}" class="button">Homework Tasks</a>
+        <a href="{{url_for('notes')}}" class="button">Notes</a>
+        <a href="#" class="button events">Events</a>
+        <a href="{{url_for('break_time')}}" class="button">Break Time</a>
+        <a href="{{url_for('study_summary')}}" class="button">Study Summary</a>
+    </div>
+
+    <div class="main-content">
+        <a href="{{url_for('login')}}" class="logout-button">Logout</a>
+
+        <form class="events-form" method="POST" action="{{ url_for('save_event') }}">
+            <h1>🗓️ Add Event</h1>
+
+            <div class="form-group">
+                <label for="event_name">Event Name:</label>
+                <input type="text" id="event_name" name="event_name" placeholder="Example: Study Group Meeting" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="start_datetime">Start:</label>
+                    <input type="datetime-local" id="start_datetime" name="start_datetime" required>
+                </div>
+                <div class="form-group">
+                    <label for="end_datetime">End:</label>
+                    <input type="datetime-local" id="end_datetime" name="end_datetime" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location: <span class="optional-label">(optional)</span></label>
+                <input type="text" id="location" name="location" placeholder="Example: DC Library">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description: <span class="optional-label">(optional)</span></label>
+                <textarea id="description" name="description" placeholder="Add any extra details..." rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="error-message">
+                        {% for category, message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+
+            <button type="submit" class="submit-button">Add Event</button>
+        </form>
+
+        <div class="events-list">
+            <h2>📅 Your Events</h2>
+            {% if events %}
+                {% for event in events %}
+                <div class="event-item {% if event.is_completed %}completed{% endif %}">
+                    <div class="event-info">
+                        <div class="event-name {% if event.is_completed %}completed{% endif %}">{{ event.event_name }}</div>
+                        <div class="event-dates">
+                            📅 {{ event.start_datetime.strftime('%b %d, %Y') }}
+                            🕐 {{ event.start_datetime.strftime('%I:%M %p') }}
+                            →
+                            {% if event.start_datetime.date() != event.end_datetime.date() %}
+                                {{ event.end_datetime.strftime('%b %d, %Y') }}
+                            {% endif %}
+                            🕐 {{ event.end_datetime.strftime('%I:%M %p') }}
+                            {% if event.end_datetime < now and not event.is_completed %}
+                                <span class="past-label">(PAST)</span>
+                            {% endif %}
+                        </div>
+                        {% if event.location %}
+                        <div class="event-meta">📍 {{ event.location }}</div>
+                        {% endif %}
+                        {% if event.description %}
+                        <div class="event-meta event-description">{{ event.description }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="event-actions">
+                        {% if event.is_completed %}
+                            <a href="{{ url_for('complete_event', event_id=event.id) }}" class="action-button uncomplete-button">Undo</a>
+                        {% else %}
+                            <a href="{{ url_for('complete_event', event_id=event.id) }}" class="action-button complete-button">Complete</a>
+                        {% endif %}
+                        <a href="{{ url_for('delete_event', event_id=event.id) }}" class="action-button delete-button" onclick="return confirm('Are you sure you want to delete this event?')">Delete</a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-events">
+                    No events yet. Add your first event above!
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
