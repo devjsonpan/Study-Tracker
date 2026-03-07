@@ -76,11 +76,11 @@ body {
 }
 
 .side-panel>.button:nth-child(4)::before {
-    content: "✅";
+    content: "📝";
 }
 
 .side-panel>.button:nth-child(5)::before {
-    content: "📝";
+    content: "✅";
 }
 
 .side-panel>.button:nth-child(6)::before {

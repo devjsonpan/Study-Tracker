@@ -37,31 +37,83 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         },
         eventClick: function (info) {
-            let title = info.event.title;
-            let type = info.event.extendedProps.type === 'task' ? 'Homework Task' : 'Event';
-            let description = info.event.extendedProps.description;
+            const title = info.event.title;
+            const type = info.event.extendedProps.type === 'task' ? 'Homework Task' : 'Event';
+            const props = info.event.extendedProps;
 
-            if (info.event.extendedProps.type === 'task') {
-                let status;
-                if (info.event.extendedProps.completed) {
-                    status = "Completed ✅";
-                } else if (new Date() > info.event.start) {
-                    status = "Overdue ❌";
-                } else {
-                    status = "Pending 🕒";
-                }
-                let deadline = info.event.extendedProps.deadline;
-                alert(`--- ${type} ---\n\nTitle: ${title}\nDeadline: ${deadline}\nStatus: ${status}\nDescription: ${description}\n\nNote: To modify this item, please visit the ${type}s page.`);
+            let statusClass, statusText;
+            if (props.completed) {
+                statusClass = 'completed'; statusText = 'Completed ✅';
+            } else if (info.event.extendedProps.type === 'task' && new Date() > info.event.start) {
+                statusClass = 'overdue'; statusText = 'Overdue ❌';
             } else {
-                let status = info.event.extendedProps.completed ? "Completed ✅" : "Pending 🕒";
-                let start = info.event.extendedProps.real_start;
-                let end = info.event.extendedProps.real_end;
-                let location = info.event.extendedProps.location;
-                alert(`--- ${type} ---\n\nTitle: ${title}\nStart: ${start}\nEnd: ${end}\nStatus: ${status}\nLocation: ${location}\nDescription: ${description}\n\nNote: To modify this item, please visit the ${type}s page.`);
+                statusClass = 'pending'; statusText = 'Pending 🕒';
             }
+
+            let rows = '';
+
+            if (props.type === 'task') {
+                rows = `
+                    <div class="modal-row">
+                        <span class="modal-label">Title</span>
+                        <span class="modal-value">${title}</span>
+                    </div>
+                    <div class="modal-row">
+                        <span class="modal-label">Status</span>
+                        <span class="modal-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <hr class="modal-divider">
+                    <div class="modal-row">
+                        <span class="modal-label">Deadline</span>
+                        <span class="modal-value">${props.deadline}</span>
+                    </div>
+                    <div class="modal-row">
+                        <span class="modal-label">Description</span>
+                        <span class="modal-value">${props.description}</span>
+                    </div>`;
+            } else {
+                rows = `
+                    <div class="modal-row">
+                        <span class="modal-label">Title</span>
+                        <span class="modal-value">${title}</span>
+                    </div>
+                    <div class="modal-row">
+                        <span class="modal-label">Status</span>
+                        <span class="modal-status ${statusClass}">${statusText}</span>
+                    </div>
+                    <hr class="modal-divider">
+                    <div class="modal-row">
+                        <span class="modal-label">Start</span>
+                        <span class="modal-value">${props.real_start}</span>
+                    </div>
+                    <div class="modal-row">
+                        <span class="modal-label">End</span>
+                        <span class="modal-value">${props.real_end}</span>
+                    </div>
+                    <div class="modal-row">
+                        <span class="modal-label">Location</span>
+                        <span class="modal-value">${props.location}</span>
+                    </div>
+                    <div class="modal-row">
+                        <span class="modal-label">Description</span>
+                        <span class="modal-value">${props.description}</span>
+                    </div>`;
+            }
+
+            document.getElementById('modal-content').innerHTML = `
+                <h2>${type === 'Homework Task' ? '✅' : '🗓️'} ${type}</h2>
+                ${rows}
+                <p class="modal-note">To modify this item, visit the ${type}s page.</p>
+            `;
+
+            document.getElementById('event-modal').style.display = 'block';
             info.jsEvent.preventDefault();
-        }
+        },
     });
 
     calendar.render();
+
+    document.getElementById('modal-close').addEventListener('click', function() {
+        document.getElementById('event-modal').style.display = 'none';
+    });
 });
