@@ -213,6 +213,16 @@ body {
     font-weight: bold;
 }
 
+.fc-toolbar-chunk {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+    align-items: center;
+}
+
 .fc .fc-button-primary {
     background-color: #667eea !important;
     border-color: #5568d3 !important;
@@ -234,6 +244,23 @@ body {
     padding: 2px;
 }
 
-.fc-event:hover {
-    transform: scale(1.01);
+.fc-event {
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+    border-radius: 4px !important;
+    padding: 2px;
+    position: relative;
+}
+
+.fc-event:hover::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    pointer-events: none;
 }

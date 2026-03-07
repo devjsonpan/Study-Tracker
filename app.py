@@ -406,7 +406,6 @@ def calendar_view():
     tasks = HomeworkTask.query.filter_by(username=username).all()
     events = Event.query.filter_by(username=username).all()
     
-    # Format for FullCalendar
     calendar_events = []
     
     for task in tasks:
@@ -416,11 +415,6 @@ def calendar_view():
             bg_color = '#e53e3e'
         else:
             bg_color = '#ff9900'
-
-        # Anchor end time backward so it never crosses midnight
-        # minutes_since_midnight = task.due_date.hour * 60 + task.due_date.minute
-        # display_duration = min(30, minutes_since_midnight) or 15
-        # display_start = task.due_date - timedelta(minutes=display_duration)
 
         calendar_events.append({
             'title': f"{task.course}: {task.task_name}",
@@ -437,17 +431,23 @@ def calendar_view():
         })
 
     for event in events:
+        end_dt = event.end_datetime
+        if end_dt.hour == 0 and end_dt.minute == 0:
+            end_dt = end_dt + timedelta(minutes=1)
+
         calendar_events.append({
             'title': f"{event.event_name}",
             'start': event.start_datetime.isoformat(),
-            'end': event.end_datetime.isoformat(),
+            'end': end_dt.isoformat(),
             'backgroundColor': '#48bb78' if event.is_completed else '#667eea',
             'borderColor': '#38a169' if event.is_completed else '#5568d3',
             'textColor': '#fff',
-            'display': 'block', 
+            'display': 'block',
             'extendedProps': {
                 'type': 'event',
-                'completed': event.is_completed
+                'completed': event.is_completed,
+                'real_start': event.start_datetime.strftime('%B %d, %Y at %I:%M %p'),
+                'real_end': event.end_datetime.strftime('%B %d, %Y at %I:%M %p')
             }
         })
 

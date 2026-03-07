@@ -4,25 +4,38 @@ document.addEventListener('DOMContentLoaded', function () {
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            left: 'prev',
+            center: 'title today',
+            right: 'next'
         },
         events: calendarEvents,
         height: 'auto',
         contentHeight: 600,
         dayMaxEvents: true,
-        scrollTime: '08:00:00',
-        slotMinTime: '00:00:00',
-        slotMaxTime: '24:00:00',
-        eventMinHeight: 20,
-        slotEventOverlap: false,
         eventTimeFormat: {
             hour: '2-digit',
             minute: '2-digit',
             meridiem: true
         },
-        
+        eventContent: function(info) {
+            const timeText = info.timeText;
+            const title = info.event.title;
+            const isTask = info.event.extendedProps.type === 'task';
+
+            if (isTask) {
+                const color = info.event.backgroundColor;
+                return { html: `<div style="display: flex; align-items: center; overflow: hidden; white-space: nowrap; max-width: 100%;">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background-color: ${color}; flex-shrink: 0; margin-right: 4px;"></span>
+                    <span style="flex-shrink: 0;">${timeText} —&nbsp;</span>
+                    <span style="overflow: hidden; text-overflow: ellipsis;">${title}</span>
+                </div>` };
+            } else {
+                return { html: `<div style="display: flex; align-items: center; overflow: hidden; white-space: nowrap; max-width: 100%;">
+                    <span style="flex-shrink: 0; margin-right: 4px;">${timeText ? timeText + ' — ' : '— '}</span>
+                    <span style="overflow: hidden; text-overflow: ellipsis;">${title}</span>
+                </div>` };
+            }
+        },
         eventClick: function (info) {
             let title = info.event.title;
             let type = info.event.extendedProps.type === 'task' ? 'Homework Task' : 'Event';
@@ -37,12 +50,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     status = "Pending 🕒";
                 }
                 let deadline = info.event.extendedProps.deadline;
-                alert(`--- ${type} ---\n\nTitle: ${title}\nStatus: ${status}\nDeadline: ${deadline}\n\nNote: To modify this item, please visit the ${type}s page.`);
+                alert(`--- ${type} ---\n\nTitle: ${title}\nDeadline: ${deadline}\nStatus: ${status}\n\nNote: To modify this item, please visit the ${type}s page.`);
             } else {
                 let status = info.event.extendedProps.completed ? "Completed ✅" : "Pending 🕒";
-                let start = info.event.start.toLocaleString();
-                let end = info.event.end ? info.event.end.toLocaleString() : 'N/A';
-                alert(`--- ${type} ---\n\nTitle: ${title}\nStatus: ${status}\nStart: ${start}\nEnd: ${end}\n\nNote: To modify this item, please visit the ${type}s page.`);
+                let start = info.event.extendedProps.real_start;
+                let end = info.event.extendedProps.real_end;
+                alert(`--- ${type} ---\n\nTitle: ${title}\nStart: ${start}\nEnd: ${end}\nStatus: ${status}\n\nNote: To modify this item, please visit the ${type}s page.`);
             }
             info.jsEvent.preventDefault();
         }
