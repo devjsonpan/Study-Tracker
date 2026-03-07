@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, get_flashed_messages
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from datetime import timedelta
 from flask_session import Session
 
 # Initialize the Flask application
@@ -393,6 +394,63 @@ def delete_event(event_id):
         db.session.commit()
     
     return redirect(url_for('events'))
+
+# Route for the calendar page
+@app.route('/calendar')
+def calendar_view():
+    if session.get('username') == None:
+        return redirect(url_for('login'))
+        
+    username = session['username']
+    
+    tasks = HomeworkTask.query.filter_by(username=username).all()
+    events = Event.query.filter_by(username=username).all()
+    
+    # Format for FullCalendar
+    calendar_events = []
+    
+    for task in tasks:
+        if task.is_completed:
+            bg_color = '#48bb78'
+        elif task.due_date < datetime.now():
+            bg_color = '#e53e3e'
+        else:
+            bg_color = '#ff9900'
+
+        # Anchor end time backward so it never crosses midnight
+        # minutes_since_midnight = task.due_date.hour * 60 + task.due_date.minute
+        # display_duration = min(30, minutes_since_midnight) or 15
+        # display_start = task.due_date - timedelta(minutes=display_duration)
+
+        calendar_events.append({
+            'title': f"📖 {task.course}: {task.task_name}",
+            'start': task.due_date.isoformat(),
+            'backgroundColor': bg_color,
+            'borderColor': bg_color,
+            'textColor': '#fff',
+            'display': 'list-item',
+            'extendedProps': {
+                'type': 'task',
+                'completed': task.is_completed,
+            }
+        })
+
+    for event in events:
+        calendar_events.append({
+            'title': f"🗓️ {event.event_name}",
+            'start': event.start_datetime.isoformat(),
+            'end': event.end_datetime.isoformat(),
+            'backgroundColor': '#48bb78' if event.is_completed else '#667eea',
+            'borderColor': '#38a169' if event.is_completed else '#5568d3',
+            'textColor': '#fff',
+            'display': 'block', 
+            'extendedProps': {
+                'type': 'event',
+                'completed': event.is_completed
+            }
+        })
+
+    return render_template('calendar.html', calendar_events=calendar_events)
 
 # Route for the break page
 @app.route('/break')

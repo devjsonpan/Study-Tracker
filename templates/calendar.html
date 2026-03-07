@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calendar</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='calendar.css') }}">
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+    <script>
+        // Pass server events to JS
+        const calendarEvents = {{ calendar_events | tojson }};
+    </script>
+    <script src="{{ url_for('static', filename='calendar.js') }}"></script>
+</head>
+
+<body>
+    <div class="side-panel">
+        <div class="side-panel-logo">
+            <h2>📚 Study Tracker</h2>
+        </div>
+        <a href="{{url_for('home')}}" class="button">Home</a>
+        <a href="{{url_for('study_session')}}" class="button">Study Session</a>
+        <a href="{{url_for('homework')}}" class="button">Homework Tasks</a>
+        <a href="{{url_for('notes')}}" class="button">Notes</a>
+        <a href="{{url_for('events')}}" class="button">Events</a>
+        <a href="#" class="button calendar">Calendar</a>
+        <a href="{{url_for('break_time')}}" class="button">Break Time</a>
+        <a href="{{url_for('study_summary')}}" class="button">Study Summary</a>
+    </div>
+
+    <div class="main-content">
+        <a href="{{url_for('login')}}" class="logout-button">Logout</a>
+
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <h1>📆 Your Calendar</h1>
+                <p>A visual overview of all your upcoming events and deadlines.</p>
+                <div class="legend">
+                    <span class="legend-item"><span class="color-box event-active"></span> Active Event</span>
+                    <span class="legend-item"><span class="color-box task-active"></span> Due Homework</span>
+                    <span class="legend-item"><span class="color-box task-overdue"></span> Overdue Homework</span>
+                    <span class="legend-item"><span class="color-box completed"></span> Completed</span>
+                </div>
+            </div>
+
+            <!-- The Calendar Element -->
+            <div id="calendar"></div>
+            
+            <div class="instruction-box">
+                <p>🚨 NOTE: You can't modify items here. Head over to <b>Events</b> or <b>Homework Tasks</b> to make changes!</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -18,6 +18,7 @@
         <a href="{{url_for('homework')}}" class="button">Homework Tasks</a>
         <a href="{{url_for('notes')}}" class="button">Notes</a>
         <a href="{{url_for('events')}}" class="button">Events</a>
+        <a href="{{url_for('calendar_view')}}" class="button">Calendar</a>
         <a href="#" class="button breaktime">Break Time</a>
         <a href="{{url_for('study_summary')}}" class="button">Study Summary</a>
     </div>
@@ -26,7 +27,7 @@
         <a href="{{url_for('login')}}" class="logout-button">Logout</a>
 
         <form class="break-form" method="POST" action="{{ url_for('save_break') }}">
-            <h1>☕ Log Break Time</h1>
+            <h1>🎮 Log Break Time</h1>
             
             <div class="info-box">
                 💡 Track your breaks to ensure you're maintaining a healthy study-rest balance.
