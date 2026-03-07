@@ -25,12 +25,21 @@ document.addEventListener('DOMContentLoaded', function () {
         
         eventClick: function (info) {
             let title = info.event.title;
-            let status = info.event.extendedProps.completed ? "Completed ✅" : "Pending 🕒";
             let type = info.event.extendedProps.type === 'task' ? 'Homework Task' : 'Event';
+
             if (info.event.extendedProps.type === 'task') {
-                let start = info.event.start.toLocaleString();
-                alert(`--- ${type} ---\n\nTitle: ${title}\nStatus: ${status}\nDeadline: ${start}\n\nNote: To modify this item, please visit the ${type}s page.`);
-            } else {    
+                let status;
+                if (info.event.extendedProps.completed) {
+                    status = "Completed ✅";
+                } else if (new Date() > info.event.start) {
+                    status = "Overdue ❌";
+                } else {
+                    status = "Pending 🕒";
+                }
+                let deadline = info.event.extendedProps.deadline;
+                alert(`--- ${type} ---\n\nTitle: ${title}\nStatus: ${status}\nDeadline: ${deadline}\n\nNote: To modify this item, please visit the ${type}s page.`);
+            } else {
+                let status = info.event.extendedProps.completed ? "Completed ✅" : "Pending 🕒";
                 let start = info.event.start.toLocaleString();
                 let end = info.event.end ? info.event.end.toLocaleString() : 'N/A';
                 alert(`--- ${type} ---\n\nTitle: ${title}\nStatus: ${status}\nStart: ${start}\nEnd: ${end}\n\nNote: To modify this item, please visit the ${type}s page.`);

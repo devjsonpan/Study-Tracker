@@ -423,7 +423,7 @@ def calendar_view():
         # display_start = task.due_date - timedelta(minutes=display_duration)
 
         calendar_events.append({
-            'title': f"📖 {task.course}: {task.task_name}",
+            'title': f"{task.course}: {task.task_name}",
             'start': task.due_date.isoformat(),
             'backgroundColor': bg_color,
             'borderColor': bg_color,
@@ -432,12 +432,13 @@ def calendar_view():
             'extendedProps': {
                 'type': 'task',
                 'completed': task.is_completed,
+                'deadline': task.due_date.strftime('%B %d, %Y at %I:%M %p')
             }
         })
 
     for event in events:
         calendar_events.append({
-            'title': f"🗓️ {event.event_name}",
+            'title': f"{event.event_name}",
             'start': event.start_datetime.isoformat(),
             'end': event.end_datetime.isoformat(),
             'backgroundColor': '#48bb78' if event.is_completed else '#667eea',
