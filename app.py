@@ -616,6 +616,14 @@ def edit_note(session_id):
     
     return redirect(url_for('notes'))
 
+def calculate_duration_mins(time_in, time_out):
+    in_sec = time_in.hour * 3600 + time_in.minute * 60 + time_in.second
+    out_sec = time_out.hour * 3600 + time_out.minute * 60 + time_out.second
+    diff = out_sec - in_sec
+    if diff < 0:
+        diff += 86400
+    return diff / 60.0
+
 @app.route('/summary')
 def study_summary():
     current_date = datetime.now()
@@ -651,13 +659,11 @@ def study_summary():
         ).all()
 
         total_study_mins = sum(
-            ((s.time_out.hour * 3600 + s.time_out.minute * 60 + s.time_out.second) -
-            (s.time_in.hour * 3600 + s.time_in.minute * 60 + s.time_in.second)) / 60.0
+            calculate_duration_mins(s.time_in, s.time_out)
             for s in user_sessions
         )
         total_break_mins = sum(
-            ((b.time_out.hour * 3600 + b.time_out.minute * 60 + b.time_out.second) -
-            (b.time_in.hour * 3600 + b.time_in.minute * 60 + b.time_in.second)) / 60.0
+            calculate_duration_mins(b.time_in, b.time_out)
             for b in user_breaks
         )
 
@@ -670,13 +676,11 @@ def study_summary():
         ).all()
 
         today_study_mins = sum(
-            ((s.time_out.hour * 3600 + s.time_out.minute * 60 + s.time_out.second) -
-            (s.time_in.hour * 3600 + s.time_in.minute * 60 + s.time_in.second)) / 60.0
+            calculate_duration_mins(s.time_in, s.time_out)
             for s in user_today_sessions
         )
         today_break_mins = sum(
-            ((b.time_out.hour * 3600 + b.time_out.minute * 60 + b.time_out.second) -
-            (b.time_in.hour * 3600 + b.time_in.minute * 60 + b.time_in.second)) / 60.0
+            calculate_duration_mins(b.time_in, b.time_out)
             for b in user_today_breaks
         )
 
@@ -703,7 +707,7 @@ def study_summary():
     # Course breakdown (minutes per course)
     course_totals = {}
     for s in my_sessions:
-        mins = ((s.time_out.hour * 3600 + s.time_out.minute * 60 + s.time_out.second) - (s.time_in.hour * 3600 + s.time_in.minute * 60 + s.time_in.second)) / 60.0
+        mins = calculate_duration_mins(s.time_in, s.time_out)
         course_totals[s.course] = course_totals.get(s.course, 0) + mins
 
     course_labels = list(course_totals.keys())
@@ -715,11 +719,11 @@ def study_summary():
     daily_break = defaultdict(float)
 
     for s in my_sessions:
-        mins = ((s.time_out.hour * 3600 + s.time_out.minute * 60 + s.time_out.second) - (s.time_in.hour * 3600 + s.time_in.minute * 60 + s.time_in.second)) / 60.0
+        mins = calculate_duration_mins(s.time_in, s.time_out)
         daily_study[s.date.strftime('%b %d')] += round(mins / 60, 2)
 
     for b in my_breaks:
-        mins = ((b.time_out.hour * 3600 + b.time_out.minute * 60 + b.time_out.second) - (b.time_in.hour * 3600 + b.time_in.minute * 60 + b.time_in.second)) / 60.0
+        mins = calculate_duration_mins(b.time_in, b.time_out)
         daily_break[b.date.strftime('%b %d')] += round(mins / 60, 2)
 
     all_dates = sorted(set(list(daily_study.keys()) + list(daily_break.keys())))
@@ -737,20 +741,18 @@ def study_summary():
 
     today_course_totals = {}
     for s in today_sessions:
-        mins = ((s.time_out.hour * 3600 + s.time_out.minute * 60 + s.time_out.second) - (s.time_in.hour * 3600 + s.time_in.minute * 60 + s.time_in.second)) / 60.0
+        mins = calculate_duration_mins(s.time_in, s.time_out)
         today_course_totals[s.course] = today_course_totals.get(s.course, 0) + mins
 
     today_course_labels = list(today_course_totals.keys())
     today_course_hours = [round(m / 60, 2) for m in today_course_totals.values()]
 
     today_study_mins = sum(
-        ((s.time_out.hour * 3600 + s.time_out.minute * 60 + s.time_out.second) -
-         (s.time_in.hour * 3600 + s.time_in.minute * 60 + s.time_in.second)) / 60.0
+        calculate_duration_mins(s.time_in, s.time_out)
         for s in today_sessions
     )
     today_break_mins = sum(
-        ((b.time_out.hour * 3600 + b.time_out.minute * 60 + b.time_out.second) -
-         (b.time_in.hour * 3600 + b.time_in.minute * 60 + b.time_in.second)) / 60.0
+        calculate_duration_mins(b.time_in, b.time_out)
         for b in today_breaks
     )
     today_study_hours = round(today_study_mins / 60, 2)
