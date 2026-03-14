@@ -22,7 +22,6 @@
         const todayStudyHours = {{ today_study_hours | tojson }};
         const todayBreakHours = {{ today_break_hours | tojson }};
     </script>
-    <script src="{{ url_for('static', filename='study_summary.js') }}"></script>
 </head>
 
 <body>
@@ -186,6 +185,7 @@
             {% endif %}
         </div>
     </div>
+    <script src="{{ url_for('static', filename='study_summary.js') }}"></script>
     <script>
         document.querySelector('.logout-button').addEventListener('click', function(e) {
             const username = "{{ session['username'] }}";
