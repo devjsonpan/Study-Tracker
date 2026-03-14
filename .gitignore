@@ -3,7 +3,6 @@ app.env
 __pycache__/
 *.pyc
 instance/
-migrations/
 flask_session/
 study_tracker.db
 venv/
