@@ -32,64 +32,80 @@
                     <p>Here's a quick overview of everything your Study Tracker can do.</p>
                 </div>
             </div>
-
+            
         <div class="guide-grid">
-            <div class="guide-card">
-                <div class="guide-icon">🏠</div>
-                <div class="guide-body">
-                    <h3>Home</h3>
-                    <p>You're here! Come back anytime you want to get a refresher on what each page has to offer.</p>
+            <a href="{{ url_for('home') }}" class="guide-card-link">
+                <div class="guide-card">
+                    <div class="guide-icon">🏠</div>
+                    <div class="guide-body">
+                        <h3>Home</h3>
+                        <p>You're here! Come back anytime you want to get a refresher on what each page has to offer.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="guide-card">
-                <div class="guide-icon">📖</div>
-                <div class="guide-body">
-                    <h3>Study Session</h3>
-                    <p>Start a live timer to log your studying down to the second. Assign a course, topic, and personal notes to keep your sessions organized.</p>
+            </a>   
+            <a href="{{ url_for('study_session') }}" class="guide-card-link">
+                <div class="guide-card">
+                    <div class="guide-icon">📖</div>
+                    <div class="guide-body">
+                        <h3>Study Session</h3>
+                        <p>Start a live timer to log your studying down to the second. Assign a course, topic, and personal notes to keep your sessions organized.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="guide-card">
-                <div class="guide-icon">📝</div>
-                <div class="guide-body">
-                    <h3>Notes</h3>
-                    <p>Every note you write during a study session is saved here. Browse, edit, or delete them whenever you need to revisit what you've covered.</p>
+            </a>
+            <a href="{{ url_for('notes') }}" class="guide-card-link">
+                <div class="guide-card">
+                    <div class="guide-icon">📝</div>
+                    <div class="guide-body">
+                        <h3>Notes</h3>
+                        <p>Every note you write during a study session is saved here. Browse, edit, or delete them whenever you need to revisit what you've covered.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="guide-card">
-                <div class="guide-icon">✅</div>
-                <div class="guide-body">
-                    <h3>Homework Tasks</h3>
-                    <p>Stay on top of your assignments by logging tasks with due dates and descriptions. Completed tasks can be marked off, and overdue ones are flagged automatically.</p>
+            </a>
+            <a href="{{ url_for('homework') }}" class="guide-card-link">
+                <div class="guide-card">
+                    <div class="guide-icon">✅</div>
+                    <div class="guide-body">
+                        <h3>Homework Tasks</h3>
+                        <p>Stay on top of your assignments by logging tasks with due dates and descriptions. Completed tasks can be marked off, and overdue ones are flagged automatically.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="guide-card">
-                <div class="guide-icon">📌</div>
-                <div class="guide-body">
-                    <h3>Events</h3>
-                    <p>Plan ahead by adding events with a start time, end time, location, and description. Perfect for study groups, exams, or any scheduled commitment.</p>
+            </a>
+            <a href="{{ url_for('events') }}" class="guide-card-link">
+                <div class="guide-card">
+                    <div class="guide-icon">📌</div>
+                    <div class="guide-body">
+                        <h3>Events</h3>
+                        <p>Plan ahead by adding events with a start time, end time, location, and description. Perfect for study groups, exams, or any scheduled commitment.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="guide-card">
-                <div class="guide-icon">📆</div>
-                <div class="guide-body">
-                    <h3>Calendar</h3>
-                    <p>See all your homework deadlines and events laid out in a monthly calendar. Click on any item for a detailed summary.</p>
+            </a>
+            <a href="{{ url_for('calendar_view') }}" class="guide-card-link">
+                <div class="guide-card">
+                    <div class="guide-icon">📆</div>
+                    <div class="guide-body">
+                        <h3>Calendar</h3>
+                        <p>See all your homework deadlines and events laid out in a monthly calendar. Click on any item for a detailed summary.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="guide-card">
-                <div class="guide-icon">🎮</div>
-                <div class="guide-body">
-                    <h3>Break Time</h3>
-                    <p>Track your breaks alongside your study sessions to get a clearer picture of how you're spending your time and staying balanced.</p>
+            </a>
+            <a href="{{ url_for('break_time') }}" class="guide-card-link">
+                <div class="guide-card">
+                    <div class="guide-icon">🎮</div>
+                    <div class="guide-body">
+                        <h3>Break Time</h3>
+                        <p>Track your breaks alongside your study sessions to get a clearer picture of how you're spending your time and staying balanced.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="guide-card">
-                <div class="guide-icon">📊</div>
-                <div class="guide-body">
-                    <h3>Study Summary</h3>
-                    <p>Dive into your personal analytics with charts broken down by course and daily trends. Join or create a Study Group to securely compare your stats with friends!</p>
+            </a>
+            <a href="{{ url_for('study_summary') }}" class="guide-card-link">
+                <div class="guide-card">
+                    <div class="guide-icon">📊</div>
+                    <div class="guide-body">
+                        <h3>Study Summary</h3>
+                        <p>Dive into your personal analytics with charts broken down by course and daily trends. Join or create a Study Group to securely compare your stats with friends!</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <div class="instruction-box">

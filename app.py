@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 import os
 import secrets
 import string
+import pytz
 
 # Load environment variables from .env file
 load_dotenv()
@@ -43,6 +44,14 @@ def generate_join_code(length=6):
     characters = string.ascii_uppercase + string.digits
     return ''.join(secrets.choice(characters) for _ in range(length))
 
+def get_current_datetime():
+    eastern = pytz.timezone('America/Toronto')
+    return datetime.now(eastern).replace(tzinfo=None)
+
+def get_current_date():
+    eastern = pytz.timezone('America/Toronto')
+    return datetime.now(eastern).date()
+
 # Define the User model for the database
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -75,7 +84,7 @@ class HomeworkTask(db.Model):
     description = db.Column(db.String, nullable=True)
     due_date = db.Column(db.DateTime, nullable=False)
     is_completed = db.Column(db.Boolean, default=False, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now)
+    created_at = db.Column(db.DateTime, default=get_current_datetime)
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -86,7 +95,7 @@ class Event(db.Model):
     location = db.Column(db.String, nullable=True)
     description = db.Column(db.String, nullable=True)
     is_completed = db.Column(db.Boolean, default=False, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now)
+    created_at = db.Column(db.DateTime, default=get_current_datetime)
 
 # Define the BreakEntry model for the database
 class BreakEntry(db.Model):
@@ -255,7 +264,7 @@ def save_study_session():
         time_in = datetime.strptime(time_in_str, '%H:%M:%S').time()
         time_out = datetime.strptime(time_out_str, '%H:%M:%S').time()
 
-        current_date = datetime.now().date()
+        current_date = get_current_date()
 
         new_entry = StudySession(
             username=username, 
@@ -284,7 +293,7 @@ def homework():
     # Get all tasks ordered by due date, regardless of completion status
     tasks = HomeworkTask.query.filter_by(username=username).order_by(HomeworkTask.due_date).all()
     
-    return render_template('homework.html', tasks=tasks, now=datetime.now())
+    return render_template('homework.html', tasks=tasks, now=get_current_datetime())
 
 # Route for saving new homework task
 @app.route('/save_homework', methods=['POST'])
@@ -373,7 +382,7 @@ def events():
     
     all_events = Event.query.filter_by(username=username).order_by(Event.start_datetime).all()
     
-    return render_template('events.html', events=all_events, now=datetime.now())
+    return render_template('events.html', events=all_events, now=get_current_datetime())
 
 # Route for saving new event
 @app.route('/save_event', methods=['POST'])
@@ -483,7 +492,7 @@ def calendar_view():
     for task in tasks:
         if task.is_completed:
             bg_color = '#48bb78'
-        elif task.due_date < datetime.now():
+        elif task.due_date < get_current_datetime():
             bg_color = '#e53e3e'
         else:
             bg_color = '#ff9900'
@@ -548,7 +557,7 @@ def save_break():
         time_in = datetime.strptime(time_in_str, '%H:%M:%S').time()
         time_out = datetime.strptime(time_out_str, '%H:%M:%S').time()
             
-        current_date = datetime.now().date()
+        current_date = get_current_date()
 
         new_entry = BreakEntry(username=username, time_in=time_in, time_out=time_out, date=current_date)
 
@@ -701,7 +710,7 @@ def leave_group():
 
 @app.route('/summary')
 def study_summary():
-    current_date = datetime.now()
+    current_date = get_current_datetime()
     current_username = session.get('username')
     
     if current_username is None:
@@ -725,7 +734,7 @@ def study_summary():
         all_users.remove(current_user)
     all_users.insert(0, current_user)
 
-    today = datetime.now().date()
+    today = get_current_date()
     week_start = today - timedelta(days=today.weekday())
 
     # Friends comparison data
