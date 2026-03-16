@@ -250,6 +250,16 @@ textarea {
     font-weight: 600;
 }
 
+.occurring-label {
+    color: #48bb78;
+    font-weight: 600;
+}
+
+.future-label {
+    color: #667eea;
+    font-weight: 600;
+}
+
 .event-meta {
     color: #718096;
     font-size: 13px;

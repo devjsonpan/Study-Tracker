@@ -99,6 +99,12 @@
                             {% if event.end_datetime < now and not event.is_completed %}
                                 <span class="past-label">(PAST)</span>
                             {% endif %}
+                            {% if event.start_datetime <= now and event.end_datetime >= now and not event.is_completed %}
+                                <span class="occurring-label">(OCCURRING NOW)</span>
+                            {% endif %}
+                            {% if event.start_datetime > now and not event.is_completed %}
+                                <span class="future-label">(FUTURE)</span>
+                            {% endif %}
                         </div>
                         {% if event.location %}
                         <div class="event-meta">📍 {{ event.location }}</div>
