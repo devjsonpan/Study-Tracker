@@ -97,8 +97,7 @@ body {
 
 .session-form {
     max-width: 900px;
-    margin: auto;
-    margin-bottom: 40px;
+    margin: 150px auto 0 auto;
     background: white;
     padding: 40px;
     border-radius: 15px;
@@ -316,5 +315,13 @@ textarea:focus {
     .session-form {
         margin: 20px;
         padding: 20px;
+    }
+
+    .timer-display {
+        font-size: 48px;
+    }
+
+    .timer-container {
+        padding: 20px 15px;
     }
 }

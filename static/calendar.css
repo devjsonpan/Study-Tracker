@@ -123,7 +123,7 @@ body {
 /* Calendar Styles */
 .calendar-container {
     max-width: 1000px;
-    margin: auto;
+    margin: 150px auto 0 auto;
     background: white;
     padding: 40px;
     border-radius: 15px;

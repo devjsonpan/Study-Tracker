@@ -102,7 +102,7 @@ body {
 
 .break-form {
     max-width: 900px;
-    margin: auto;
+    margin: 150px auto 0 auto;
     margin-bottom: 25px;
     background: white;
     padding: 40px;
@@ -329,5 +329,13 @@ input:focus {
     .break-form {
         margin: 20px;
         padding: 20px;
+    }
+
+    .timer-display {
+        font-size: 42px;
+    }
+
+    .timer-container {
+        padding: 20px 15px;
     }
 }

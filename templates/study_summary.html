@@ -4,7 +4,10 @@
     <title>Study Summary</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='study_summary.css') }}">
+    <link rel="stylesheet" href="/static/study_summary.css">
+    <link rel="stylesheet" href="/static/dropdown.css">
+    <script src="/static/study_summary.js">
+    <script src="/static/dropdown.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <script>
         const friendNames      = {{ friend_names | tojson }};
@@ -40,7 +43,13 @@
     </div>
 
     <div class="main-content">
-        <a href="{{url_for('login')}}" class="logout-button">Logout</a>
+        <div class="profile-dropdown">
+            <button class="profile-button" type="button" onclick="document.querySelector('.dropdown-content').classList.toggle('show')">Profile ▼</button>
+            <div class="dropdown-content">
+                <a href="{{url_for('profile')}}">Edit Profile</a>
+                <a href="{{url_for('login')}}" class="logout-link">Logout</a>
+            </div>
+        </div>
 
         <div class="summary-header">
             <h1>📊 Study Summary</h1>
@@ -185,9 +194,8 @@
             {% endif %}
         </div>
     </div>
-    <script src="{{ url_for('static', filename='study_summary.js') }}"></script>
     <script>
-        document.querySelector('.logout-button').addEventListener('click', function(e) {
+        document.querySelector('.logout-link').addEventListener('click', function(e) {
             const username = "{{ session['username'] }}";
             const studyKey = 'activeStudyStart_' + username;
             const breakKey = 'activeBreakStart_' + username;

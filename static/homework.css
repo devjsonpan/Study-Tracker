@@ -102,8 +102,7 @@ body {
 
 .homework-form {
     max-width: 900px;
-    margin: auto;
-    margin-bottom: 25px;
+    margin: 150px auto 25px auto;
     background: white;
     padding: 40px;
     border-radius: 15px;
@@ -179,6 +178,7 @@ select:focus {
 .homework-list {
     max-width: 900px;
     margin: auto;
+    margin-bottom: 40px;
     background: white;
     padding: 40px;
     border-radius: 15px;

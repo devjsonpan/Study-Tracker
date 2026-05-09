@@ -35,19 +35,23 @@ db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 migrate = Migrate(app, db)
 
+# Define the StudyGroup model for the database
 class StudyGroup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     join_code = db.Column(db.String, unique=True, nullable=False)
 
+# Helper function to generate a random join code
 def generate_join_code(length=6):
     characters = string.ascii_uppercase + string.digits
     return ''.join(secrets.choice(characters) for _ in range(length))
 
+# Helper function to get the current datetime in Toronto timezone
 def get_current_datetime():
     eastern = pytz.timezone('America/Toronto')
     return datetime.now(eastern).replace(tzinfo=None)
 
+# Helper function to get the current date in Toronto timezone
 def get_current_date():
     eastern = pytz.timezone('America/Toronto')
     return datetime.now(eastern).date()
@@ -240,6 +244,23 @@ def home():
     fullname = User.query.filter_by(username=username).first().fullname
 
     return render_template('home.html', username=username, fullname=fullname)
+
+# Route for the profile page
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if session.get('username') == None:
+        return redirect(url_for('login'))
+
+    user = User.query.filter_by(username=session['username']).first()
+    
+    if request.method == 'POST':
+        new_fullname = request.form.get('fullname')
+        if new_fullname:
+            user.fullname = new_fullname
+            db.session.commit()
+            flash('Profile updated successfully!', 'success')
+            
+    return render_template('profile.html', user=user)
 
 # Route for the study session page
 @app.route('/session')
@@ -626,6 +647,7 @@ def edit_note(session_id):
     
     return redirect(url_for('notes'))
 
+# Helper function to calculate the duration of a study session in minutes
 def calculate_duration_mins(time_in, time_out):
     in_sec = time_in.hour * 3600 + time_in.minute * 60 + time_in.second
     out_sec = time_out.hour * 3600 + time_out.minute * 60 + time_out.second
@@ -634,6 +656,7 @@ def calculate_duration_mins(time_in, time_out):
         diff += 86400
     return diff / 60.0
 
+# Route for creating a study group
 @app.route('/create_group', methods=['POST'])
 def create_group():
     if session.get('username') == None:
@@ -663,6 +686,7 @@ def create_group():
     flash(f'Group "{group_name}" created! Your join code is {code}', 'success')
     return redirect(url_for('study_summary'))
 
+# Route for joining a study group
 @app.route('/join_group', methods=['POST'])
 def join_group():
     if session.get('username') == None:

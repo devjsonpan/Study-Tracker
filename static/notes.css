@@ -103,7 +103,7 @@ body {
 
 .notes-container {
     max-width: 1200px;
-    margin: auto;
+    margin: 150px auto 0 auto;
     padding: 20px;
 }
 
@@ -428,6 +428,11 @@ body {
 
     .logout-button {
         margin: 15px auto;
+    }
+
+    .notes-container {
+        margin: 20px;
+        padding: 20px;
     }
 
     .notes-grid {

@@ -4,8 +4,10 @@
     <title>Events</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='events.css') }}">
-    <script src="{{ url_for('static', filename='events.js') }}"></script>
+    <link rel="stylesheet" href="/static/events.css">
+    <link rel="stylesheet" href="/static/dropdown.css">
+    <script src="/static/events.js"></script>
+    <script src="/static/dropdown.js"></script>
 </head>
 
 <body>
@@ -24,7 +26,13 @@
     </div>
 
     <div class="main-content">
-        <a href="{{url_for('login')}}" class="logout-button">Logout</a>
+        <div class="profile-dropdown">
+            <button class="profile-button" type="button" onclick="document.querySelector('.dropdown-content').classList.toggle('show')">Profile ▼</button>
+            <div class="dropdown-content">
+                <a href="{{url_for('profile')}}">Edit Profile</a>
+                <a href="{{url_for('login')}}" class="logout-link">Logout</a>
+            </div>
+        </div>
 
         <form class="events-form" method="POST" action="{{ url_for('save_event') }}">
             <h1>🗓️ Add Event</h1>
@@ -142,7 +150,7 @@
         }, 3000);
     </script>
     <script>
-        document.querySelector('.logout-button').addEventListener('click', function(e) {
+        document.querySelector('.logout-link').addEventListener('click', function(e) {
             const username = "{{ session['username'] }}";
             const studyKey = 'activeStudyStart_' + username;
             const breakKey = 'activeBreakStart_' + username;

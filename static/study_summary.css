@@ -122,6 +122,8 @@ body {
 /* Header */
 .summary-header {
     text-align: center;
+    margin-top: 100px;
+    margin-left: 80px;
     padding: 10px 20px 0;
 }
 
@@ -140,7 +142,7 @@ body {
 /* Tabs */
 .tabs-container {
     max-width: 1100px;
-    margin: 25px auto 0;
+    margin: 25px 0 0 80px;
     padding: 0 20px;
 }
 
@@ -180,7 +182,7 @@ body {
 .tab-content {
     display: none;
     max-width: 1100px;
-    margin: 25px auto;
+    margin: 25px 0 25px 80px;
     padding: 0 20px;
 }
 
@@ -471,7 +473,7 @@ body {
 /* Flash Messages for Study Summary */
 .flash-messages {
     max-width: 1100px;
-    margin: 20px auto 0;
+    margin: 20px 0 0 80px;
     padding: 0 20px;
 }
 
@@ -560,5 +562,26 @@ body {
 
     .leaderboard-row {
         flex-wrap: wrap;
+    }
+
+    .summary-header {
+        margin-top: 20px;
+        margin-left: 0;
+    }
+
+    .tabs-container, .flash-messages {
+        margin: 20px auto 0;
+    }
+
+    .tab-content {
+        margin: 20px auto;
+    }
+
+    .chart-wrapper {
+        height: 200px;
+    }
+
+    .chart-wrapper--donut {
+        height: 220px;
     }
 }

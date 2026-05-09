@@ -99,8 +99,7 @@ body {
 
 .events-form {
     max-width: 900px;
-    margin: auto;
-    margin-bottom: 25px;
+    margin: 150px auto 25px auto;
     background: white;
     padding: 40px;
     border-radius: 15px;
@@ -188,11 +187,11 @@ textarea {
 .events-list {
     max-width: 900px;
     margin: auto;
+    margin-bottom: 40px;
     background: white;
     padding: 40px;
     border-radius: 15px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 40px;
 }
 
 .events-list h2 {

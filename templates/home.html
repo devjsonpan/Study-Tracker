@@ -4,7 +4,9 @@
     <title>Home Page</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet" href="/static/home.css">
+    <link rel="stylesheet" href="/static/dropdown.css">
+    <script src="/static/dropdown.js"></script>
 </head>
 
 <body>
@@ -23,7 +25,13 @@
     </div>
 
     <div class="main-content">
-        <a href="{{url_for('login')}}" class="logout-button">Logout</a>
+        <div class="profile-dropdown">
+            <button class="profile-button" type="button" onclick="document.querySelector('.dropdown-content').classList.toggle('show')">Profile ▼</button>
+            <div class="dropdown-content">
+                <a href="{{url_for('profile')}}">Edit Profile</a>
+                <a href="{{url_for('login')}}" class="logout-link">Logout</a>
+            </div>
+        </div>
 
         <div class="content-container">
             <div class="welcome-card">
@@ -109,11 +117,11 @@
         </div>
 
         <div class="instruction-box">
-            <p>💡 To logout of your account, click on the <b>Logout</b> button at the top right of the page!</p>
+            <p>💡 To logout of your account or edit your profile, click on the <b>Profile ▼</b> button at the top right of the page!</p>
         </div>
     </div>
     <script>
-        document.querySelector('.logout-button').addEventListener('click', function(e) {
+        document.querySelector('.logout-link').addEventListener('click', function(e) {
             const username = "{{ session['username'] }}";
             const studyKey = 'activeStudyStart_' + username;
             const breakKey = 'activeBreakStart_' + username;
