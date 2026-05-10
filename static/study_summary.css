@@ -564,6 +564,23 @@ body {
         flex-wrap: wrap;
     }
 
+    .lb-name {
+        flex-basis: calc(100% - 51px);
+    }
+
+    .lb-hours {
+        margin-left: 51px;
+        text-align: left;
+        min-width: auto;
+        flex: 1;
+    }
+
+    .lb-break {
+        text-align: left;
+        min-width: auto;
+        flex: 1;
+    }
+
     .summary-header {
         margin-top: 20px;
         margin-left: 0;

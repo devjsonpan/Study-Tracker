@@ -503,8 +503,15 @@ textarea {
     }
 
     .events-form, .events-list {
-        margin: 20px;
-        padding: 20px;
+        margin: 10px;
+        padding: 15px;
+        width: auto;
+        box-sizing: border-box;
+    }
+
+    input[type="datetime-local"] {
+        max-width: 100%;
+        display: block;
     }
 
     .form-row {

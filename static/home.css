@@ -235,21 +235,23 @@ body {
     }
 
     .content-container {
-        margin: 0 20px 0 20px;
+        width: 100%;
+        margin: 0;
         padding: 20px;
+        box-sizing: border-box;
     }
 
     .welcome-card {
-        width: 80%;
+        width: 100%;
         margin-top: 0px;
     }
 
     .guide-card {
-        width: 80%;
+        width: 100%;
     }
 
     .instruction-box {
-        width: 80%;
+        width: 100%;
     }
 
     .guide-grid {
