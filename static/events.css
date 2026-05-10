@@ -507,11 +507,15 @@ textarea {
         padding: 15px;
         width: auto;
         box-sizing: border-box;
+        overflow-x: hidden;
     }
 
     input[type="datetime-local"] {
         max-width: 100%;
         display: block;
+        padding: 12px 5px;
+        font-size: 12px;
+        letter-spacing: -0.5px;
     }
 
     .form-row {
