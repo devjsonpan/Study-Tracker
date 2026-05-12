@@ -173,43 +173,51 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         // Trend line chart
-        new Chart(document.getElementById('trendChart'), {
-            type: 'line',
-            data: {
-                labels: dailyLabels,
-                datasets: [
-                    {
-                        label: 'Study',
-                        data: dailyStudy,
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#667eea',
-                        pointRadius: 4,
-                        tension: 0.3,
-                        fill: true,
-                    },
-                    {
-                        label: 'Break',
-                        data: dailyBreak,
-                        borderColor: '#f6ad55',
-                        backgroundColor: 'rgba(246, 173, 85, 0.1)',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#f6ad55',
-                        pointRadius: 4,
-                        tension: 0.3,
-                        fill: true,
+        const trendCanvas = document.getElementById('trendChart');
+        if (trendCanvas) {
+            const minChartWidth = Math.max(dailyLabels.length * 55, 700);
+            trendCanvas.style.minWidth = `${minChartWidth}px`;
+            trendCanvas.style.maxWidth = 'none';
+
+            new Chart(trendCanvas, {
+                type: 'line',
+                data: {
+                    labels: dailyLabels,
+                    datasets: [
+                        {
+                            label: 'Study',
+                            data: dailyStudy,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#667eea',
+                            pointRadius: 4,
+                            tension: 0.3,
+                            fill: true,
+                        },
+                        {
+                            label: 'Break',
+                            data: dailyBreak,
+                            borderColor: '#f6ad55',
+                            backgroundColor: 'rgba(246, 173, 85, 0.1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#f6ad55',
+                            pointRadius: 4,
+                            tension: 0.3,
+                            fill: true,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { callback: v => v + 'h' } }
                     }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { position: 'bottom' } },
-                scales: {
-                    x: { grid: { display: false } },
-                    y: { beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { callback: v => v + 'h' } }
                 }
-            }
-        });
+            });
+        }
     }
 });

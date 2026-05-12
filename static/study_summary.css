@@ -222,6 +222,16 @@ body {
     height: 250px;
 }
 
+.chart-wrapper--scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.chart-wrapper--scroll canvas {
+    min-width: 700px;
+    max-width: none;
+}
+
 .chart-wrapper--donut {
     height: 280px;
 }

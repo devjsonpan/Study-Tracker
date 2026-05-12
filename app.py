@@ -832,23 +832,30 @@ def study_summary():
     course_labels = list(course_totals.keys())
     course_hours = [round(m / 60, 2) for m in course_totals.values()]
 
-    # Study hours per day (last 14 days)
+    # Study hours per day (all recorded days)
     from collections import defaultdict
     daily_study = defaultdict(float)
     daily_break = defaultdict(float)
 
     for s in my_sessions:
         mins = calculate_duration_mins(s.time_in, s.time_out)
-        daily_study[s.date.strftime('%b %d')] += round(mins / 60, 2)
+        daily_study[s.date] += mins / 60
 
     for b in my_breaks:
         mins = calculate_duration_mins(b.time_in, b.time_out)
-        daily_break[b.date.strftime('%b %d')] += round(mins / 60, 2)
+        daily_break[b.date] += mins / 60
 
-    all_dates = sorted(set(list(daily_study.keys()) + list(daily_break.keys())))
-    daily_labels = all_dates[-14:]
-    daily_study_values = [daily_study.get(d, 0) for d in daily_labels]
-    daily_break_values = [daily_break.get(d, 0) for d in daily_labels]
+    if daily_study or daily_break:
+        first_date = min(list(daily_study.keys()) + list(daily_break.keys()))
+        last_date = max(list(daily_study.keys()) + list(daily_break.keys()))
+        total_days = (last_date - first_date).days + 1
+        daily_labels = [(first_date + timedelta(days=i)).strftime('%b %d') for i in range(total_days)]
+        daily_study_values = [round(daily_study.get(first_date + timedelta(days=i), 0), 2) for i in range(total_days)]
+        daily_break_values = [round(daily_break.get(first_date + timedelta(days=i), 0), 2) for i in range(total_days)]
+    else:
+        daily_labels = []
+        daily_study_values = []
+        daily_break_values = []
 
     # Today's data for My Stats tab
     today_sessions = StudySession.query.filter_by(username=current_username).filter(
