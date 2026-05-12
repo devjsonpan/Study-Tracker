@@ -172,21 +172,47 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        // Trend line chart
+        // Trend line chart with pagination controls
         const trendCanvas = document.getElementById('trendChart');
-        if (trendCanvas) {
-            const minChartWidth = Math.max(dailyLabels.length * 55, 700);
-            trendCanvas.style.minWidth = `${minChartWidth}px`;
-            trendCanvas.style.maxWidth = 'none';
+        const trendPrevButton = document.getElementById('trendPrev');
+        const trendNextButton = document.getElementById('trendNext');
+        const trendStartText = document.getElementById('trendStart');
+        const trendEndText = document.getElementById('trendEnd');
+        const trendTotalText = document.getElementById('trendTotal');
 
-            new Chart(trendCanvas, {
+        if (trendCanvas) {
+            const trendWindowSize = 14;
+            let trendStartIndex = Math.max(0, dailyLabels.length - trendWindowSize);
+            const trendTotalDays = dailyLabels.length;
+            const trendMaxStart = Math.max(0, trendTotalDays - trendWindowSize);
+
+            function updateTrendControls(startIndex) {
+                const endIndex = Math.min(startIndex + trendWindowSize, trendTotalDays);
+                trendStartText.textContent = startIndex + 1;
+                trendEndText.textContent = endIndex;
+                trendTotalText.textContent = trendTotalDays;
+                trendPrevButton.disabled = startIndex === 0;
+                trendNextButton.disabled = startIndex >= trendMaxStart;
+            }
+
+            function getTrendSlice(startIndex) {
+                const endIndex = Math.min(startIndex + trendWindowSize, trendTotalDays);
+                return {
+                    labels: dailyLabels.slice(startIndex, endIndex),
+                    study: dailyStudy.slice(startIndex, endIndex),
+                    break: dailyBreak.slice(startIndex, endIndex)
+                };
+            }
+
+            const initialSlice = getTrendSlice(trendStartIndex);
+            const trendChart = new Chart(trendCanvas, {
                 type: 'line',
                 data: {
-                    labels: dailyLabels,
+                    labels: initialSlice.labels,
                     datasets: [
                         {
                             label: 'Study',
-                            data: dailyStudy,
+                            data: initialSlice.study,
                             borderColor: '#667eea',
                             backgroundColor: 'rgba(102, 126, 234, 0.1)',
                             borderWidth: 2,
@@ -197,7 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         },
                         {
                             label: 'Break',
-                            data: dailyBreak,
+                            data: initialSlice.break,
                             borderColor: '#f6ad55',
                             backgroundColor: 'rgba(246, 173, 85, 0.1)',
                             borderWidth: 2,
@@ -218,6 +244,32 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
             });
+
+            if (trendTotalDays > 0) {
+                updateTrendControls(trendStartIndex);
+            }
+
+            if (trendPrevButton && trendNextButton) {
+                trendPrevButton.addEventListener('click', function () {
+                    trendStartIndex = Math.max(0, trendStartIndex - trendWindowSize);
+                    const slice = getTrendSlice(trendStartIndex);
+                    trendChart.data.labels = slice.labels;
+                    trendChart.data.datasets[0].data = slice.study;
+                    trendChart.data.datasets[1].data = slice.break;
+                    trendChart.update();
+                    updateTrendControls(trendStartIndex);
+                });
+
+                trendNextButton.addEventListener('click', function () {
+                    trendStartIndex = Math.min(trendMaxStart, trendStartIndex + trendWindowSize);
+                    const slice = getTrendSlice(trendStartIndex);
+                    trendChart.data.labels = slice.labels;
+                    trendChart.data.datasets[0].data = slice.study;
+                    trendChart.data.datasets[1].data = slice.break;
+                    trendChart.update();
+                    updateTrendControls(trendStartIndex);
+                });
+            }
         }
     }
 });

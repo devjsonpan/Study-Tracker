@@ -179,7 +179,12 @@
                 <div class="chart-card">
                     <h3>📈 Trend Over Time</h3>
                     <p class="chart-subtitle">All-time study vs break hours</p>
-                    <div class="chart-wrapper chart-wrapper--scroll">
+                    <div class="trend-controls">
+                        <button id="trendPrev" type="button" class="trend-nav" disabled aria-label="View earlier dates">←</button>
+                        <div class="trend-info">Showing <span id="trendStart">0</span> - <span id="trendEnd">0</span> of <span id="trendTotal">0</span> days</div>
+                        <button id="trendNext" type="button" class="trend-nav" disabled aria-label="View later dates">→</button>
+                    </div>
+                    <div class="chart-wrapper">
                         <canvas id="trendChart"></canvas>
                     </div>
                 </div>
