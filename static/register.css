@@ -189,6 +189,52 @@ button[type=submit]:hover {
     border: 1px solid #feb2b2;
 }
 
+/* Custom TomSelect overrides */
+.ts-wrapper .ts-control {
+    border: 2px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    padding: 12px 15px !important;
+    box-shadow: none !important;
+    font-size: 14px !important;
+    transition: border-color 0.3s ease !important;
+    background-color: white !important;
+}
+
+.ts-wrapper.focus .ts-control {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+.ts-dropdown {
+    border: 2px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    margin-top: 5px !important;
+    font-size: 14px !important;
+}
+
+.ts-dropdown .option {
+    padding: 10px 15px !important;
+}
+
+/* Fix search input wrapping */
+.ts-wrapper.single.dropdown-active .ts-control .item {
+    display: none !important;
+}
+
+.ts-wrapper.single .ts-control input {
+    font-size: 14px !important;
+    font-family: inherit !important;
+    margin: 0 !important;
+}
+
+/* Hide flashing cursor and prevent wrap when an item is selected and dropdown is closed */
+.ts-wrapper.single.has-items:not(.dropdown-active) .ts-control input {
+    width: 0 !important;
+    opacity: 0 !important;
+    padding: 0 !important;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     .register-wrapper {

@@ -46,15 +46,36 @@ def generate_join_code(length=6):
     characters = string.ascii_uppercase + string.digits
     return ''.join(secrets.choice(characters) for _ in range(length))
 
-# Helper function to get the current datetime in Toronto timezone
-def get_current_datetime():
-    eastern = pytz.timezone('America/Toronto')
-    return datetime.now(eastern).replace(tzinfo=None)
+# Timezones available for registration/profile selection
+TIMEZONES = pytz.common_timezones
 
-# Helper function to get the current date in Toronto timezone
-def get_current_date():
-    eastern = pytz.timezone('America/Toronto')
-    return datetime.now(eastern).date()
+# Helper function to get the current datetime in the specified timezone
+def get_current_datetime(user_timezone=None):
+    try:
+        tz = pytz.timezone(user_timezone) if user_timezone else pytz.UTC
+    except pytz.UnknownTimeZoneError:
+        tz = pytz.UTC
+    return datetime.now(tz).replace(tzinfo=None)
+
+# Helper function to get the current date in the specified timezone
+def get_current_date(user_timezone=None):
+    try:
+        tz = pytz.timezone(user_timezone) if user_timezone else pytz.UTC
+    except pytz.UnknownTimeZoneError:
+        tz = pytz.UTC
+    return datetime.now(tz).date()
+
+# Helper to get the current user's timezone or fallback to UTC
+def get_user_timezone(username=None):
+    if username is None:
+        username = session.get('username')
+
+    if username:
+        user = User.query.filter_by(username=username).first()
+        if user and user.timezone:
+            return user.timezone
+
+    return 'UTC'
 
 # Define the User model for the database
 class User(db.Model):
@@ -62,6 +83,7 @@ class User(db.Model):
     username = db.Column(db.String, unique=True, nullable=False)
     fullname = db.Column(db.String, nullable=False)
     password = db.Column(db.String, nullable=False)
+    timezone = db.Column(db.String, nullable=False)
     security_question = db.Column(db.String, nullable=False)
     security_answer = db.Column(db.String, nullable=False)
     group_id = db.Column(db.Integer, db.ForeignKey('study_group.id'), nullable=True)
@@ -201,28 +223,35 @@ def register():
         confirm_password = request.form.get('confirm_password')
         security_question = request.form.get('security_question')
         security_answer = request.form.get('security_answer')
+        timezone = request.form.get('timezone')
 
         # Check if passwords match
         if password != confirm_password:
             error = 'Passwords do not match. Please try again.'
-            return render_template('register.html', error=error)
+            return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=timezone)
         
         # Check if security answer is provided
         if not security_answer or len(security_answer.strip()) == 0:
             error = 'Please provide a security answer.'
-            return render_template('register.html', error=error)
+            return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=timezone)
+
+        if not timezone or timezone not in TIMEZONES:
+            error = 'Please select a valid timezone.'
+            return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=timezone)
             
         existing_user = User.query.filter_by(username=username).first()
         
         # Check if new user can be created
         if existing_user:
             error = 'Username is already taken. Please choose a different username.'
+            return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=timezone)
         else:
             hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
             new_user = User(
                 username=username, 
                 fullname=fullname, 
                 password=hashed_password, 
+                timezone=timezone,
                 security_question=security_question,
                 security_answer=security_answer.lower().strip()
             )
@@ -232,7 +261,7 @@ def register():
             session['username'] = new_user.username
             return redirect(url_for('login'))
 
-    return render_template('register.html', error=error)
+    return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=None)
 
 # Route for the home page
 @app.route('/home')
@@ -255,12 +284,21 @@ def profile():
     
     if request.method == 'POST':
         new_fullname = request.form.get('fullname')
+        new_timezone = request.form.get('timezone')
+
         if new_fullname:
             user.fullname = new_fullname
-            db.session.commit()
-            flash('Profile updated successfully!', 'success')
+
+        if new_timezone and new_timezone in TIMEZONES:
+            user.timezone = new_timezone
+        elif new_timezone:
+            flash('Please select a valid timezone.', 'error')
+            return render_template('profile.html', user=user, timezones=TIMEZONES)
+
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
             
-    return render_template('profile.html', user=user)
+    return render_template('profile.html', user=user, timezones=TIMEZONES)
 
 # Route for the study session page
 @app.route('/session')
@@ -285,7 +323,7 @@ def save_study_session():
         time_in = datetime.strptime(time_in_str, '%H:%M:%S').time()
         time_out = datetime.strptime(time_out_str, '%H:%M:%S').time()
 
-        current_date = get_current_date()
+        current_date = get_current_date(get_user_timezone(username))
 
         new_entry = StudySession(
             username=username, 
@@ -311,10 +349,11 @@ def homework():
         return redirect(url_for('login'))
 
     username = session['username']
+    current_user = User.query.filter_by(username=username).first()
     # Get all tasks ordered by due date, regardless of completion status
     tasks = HomeworkTask.query.filter_by(username=username).order_by(HomeworkTask.due_date).all()
     
-    return render_template('homework.html', tasks=tasks, now=get_current_datetime())
+    return render_template('homework.html', tasks=tasks, now=get_current_datetime(get_user_timezone(username)))
 
 # Route for saving new homework task
 @app.route('/save_homework', methods=['POST'])
@@ -403,7 +442,7 @@ def events():
     
     all_events = Event.query.filter_by(username=username).order_by(Event.start_datetime).all()
     
-    return render_template('events.html', events=all_events, now=get_current_datetime())
+    return render_template('events.html', events=all_events, now=get_current_datetime(get_user_timezone(username)))
 
 # Route for saving new event
 @app.route('/save_event', methods=['POST'])
@@ -513,7 +552,7 @@ def calendar_view():
     for task in tasks:
         if task.is_completed:
             bg_color = '#48bb78'
-        elif task.due_date < get_current_datetime():
+        elif task.due_date < get_current_datetime(get_user_timezone(username)):
             bg_color = '#e53e3e'
         else:
             bg_color = '#ff9900'
@@ -578,7 +617,7 @@ def save_break():
         time_in = datetime.strptime(time_in_str, '%H:%M:%S').time()
         time_out = datetime.strptime(time_out_str, '%H:%M:%S').time()
             
-        current_date = get_current_date()
+        current_date = get_current_date(get_user_timezone(username))
 
         new_entry = BreakEntry(username=username, time_in=time_in, time_out=time_out, date=current_date)
 
@@ -734,13 +773,16 @@ def leave_group():
 
 @app.route('/summary')
 def study_summary():
-    current_date = get_current_datetime()
     current_username = session.get('username')
     
     if current_username is None:
         return redirect(url_for('login'))
 
     current_user = User.query.filter_by(username=current_username).first()
+    if not current_user:
+        return redirect(url_for('login'))
+
+    current_date = get_current_datetime(get_user_timezone(current_username))
     if not current_user:
         return redirect(url_for('login'))
         
@@ -758,7 +800,7 @@ def study_summary():
         all_users.remove(current_user)
     all_users.insert(0, current_user)
 
-    today = get_current_date()
+    today = get_current_date(get_user_timezone(current_username))
     week_start = today - timedelta(days=today.weekday())
 
     # Friends comparison data
