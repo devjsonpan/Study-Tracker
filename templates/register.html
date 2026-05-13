@@ -29,14 +29,16 @@
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" placeholder="Choose a password" name="password" id="password" required>
-                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" placeholder="Choose a password" name="password" id="password" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="confirm_password">Confirm Password</label>
-                    <input type="password" placeholder="Re-enter your password" name="confirm_password" id="confirm_password" required>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password</label>
+                        <input type="password" placeholder="Re-enter your password" name="confirm_password" id="confirm_password" required>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -49,25 +51,27 @@
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label for="security_question">Security Question</label>
-                    <select name="security_question" id="security_question" required>
-                        <option value="" disabled selected>Select a security question...</option>
-                        <option value="What was the name of your first pet?">What was the name of your first pet?</option>
-                        <option value="What city were you born in?">What city were you born in?</option>
-                        <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
-                        <option value="What was your childhood nickname?">What was your childhood nickname?</option>
-                        <option value="What is your favorite book?">What is your favorite book?</option>
-                        <option value="What was the name of your elementary school?">What was the name of your elementary school?</option>
-                    </select>
-                </div>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 1.5;">
+                        <label for="security_question">Security Question</label>
+                        <select name="security_question" id="security_question" required>
+                            <option value="" disabled selected>Select a security question...</option>
+                            <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                            <option value="What city were you born in?">What city were you born in?</option>
+                            <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                            <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+                            <option value="What is your favorite book?">What is your favorite book?</option>
+                            <option value="What was the name of your elementary school?">What was the name of your elementary school?</option>
+                        </select>
+                    </div>
 
-                <div class="form-group">
-                    <label for="security_answer">Security Answer</label>
-                    <input type="text" placeholder="Enter your answer" name="security_answer" id="security_answer" required>
-                    <small style="color: #718096; font-size: 12px; display: block; margin-top: 5px;">
-                        * Remember your username and security answer for password reset
-                    </small>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="security_answer">Security Answer</label>
+                        <input type="text" placeholder="Enter your answer" name="security_answer" id="security_answer" required>
+                        <small style="color: #718096; font-size: 11px; display: block; margin-top: 5px;">
+                            * Remember for password reset
+                        </small>
+                    </div>
                 </div>
                 
                 <button type="submit">Create Account</button>
