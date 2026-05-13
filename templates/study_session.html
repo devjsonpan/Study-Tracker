@@ -84,31 +84,5 @@
             </div>
         </form>
     </div>
-    <script>
-        document.querySelector('.logout-link').addEventListener('click', function(e) {
-            const username = "{{ session['username'] }}";
-            const studyKey = 'activeStudyStart_' + username;
-            const breakKey = 'activeBreakStart_' + username;
-            if (localStorage.getItem(studyKey)) {
-                e.preventDefault();
-                const confirmed = window.confirm('You have a study session currently running. Are you sure you want to logout? Your session will not be saved.');
-                if (confirmed) {
-                    localStorage.removeItem(studyKey);
-                    window.location.href = this.href;
-                } else {
-                    window.location.href = '/session';
-                }
-            } else if (localStorage.getItem(breakKey)) {
-                e.preventDefault();
-                const confirmed = window.confirm('You have a break session currently running. Are you sure you want to logout? Your break will not be saved.');
-                if (confirmed) {
-                    localStorage.removeItem(breakKey);
-                    window.location.href = this.href;
-                } else {
-                    window.location.href = '/break';
-                }
-            }
-        });
-    </script>
 </body>
 </html>
