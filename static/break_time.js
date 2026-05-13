@@ -57,6 +57,8 @@ document.addEventListener("DOMContentLoaded", function () {
         updateDisplay(0);
     });
 
+    let allowInternalNavigation = false;
+
     stopBtn.addEventListener('click', function () {
         if (!startTime) return;
         clearInterval(timerInterval);
@@ -80,5 +82,21 @@ document.addEventListener("DOMContentLoaded", function () {
         timeInInput.value = formatTimeString(startTime);
         timeOutInput.value = formatTimeString(endTime);
         form.submit();
+    });
+
+    // Allow normal site navigation without warning
+    const internalNavLinks = document.querySelectorAll('.side-panel a:not(.logout-link), .dropdown-content a:not(.logout-link)');
+    internalNavLinks.forEach(link => {
+        link.addEventListener('click', function () {
+            allowInternalNavigation = true;
+        });
+    });
+
+    // Warn when leaving the page with an active break session, except for internal navigation
+    window.addEventListener('beforeunload', function (e) {
+        if (!allowInternalNavigation && localStorage.getItem(storageKey)) {
+            e.returnValue = 'You have a break session currently running. Are you sure you want to leave?';
+            return e.returnValue;
+        }
     });
 });
