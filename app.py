@@ -1,4 +1,6 @@
 # Import the necessary modules from the libraries
+from alembic.autogenerate.compare import server_defaults
+from alembic.autogenerate.compare import schema
 from flask import Flask, render_template, request, redirect, url_for, session, flash, get_flashed_messages
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -349,11 +351,18 @@ def homework():
         return redirect(url_for('login'))
 
     username = session['username']
-    current_user = User.query.filter_by(username=username).first()
+    
     # Get all tasks ordered by due date, regardless of completion status
     tasks = HomeworkTask.query.filter_by(username=username).order_by(HomeworkTask.due_date).all()
-    
-    return render_template('homework.html', tasks=tasks, now=get_current_datetime(get_user_timezone(username)))
+
+    # Set default deadline to current day at 11:59 PM
+    current_datetime = get_current_datetime(get_user_timezone(username))
+    default_deadline = current_datetime.replace(hour=23, minute=59, second=0)
+
+    # Format for datetime-local input (YYYY-MM-DDThh:mm)
+    default_deadline_str = default_deadline.strftime('%Y-%m-%dT%H:%M')
+
+    return render_template('homework.html', tasks=tasks, now=get_current_datetime(get_user_timezone(username)), default_deadline = default_deadline_str)
 
 # Route for saving new homework task
 @app.route('/save_homework', methods=['POST'])
@@ -441,8 +450,29 @@ def events():
     username = session['username']
     
     all_events = Event.query.filter_by(username=username).order_by(Event.start_datetime).all()
+
+    current_datetime = get_current_datetime(get_user_timezone(username))
+
+    # Default start: round up to next hour
+    default_start = current_datetime.replace(minute=0, second=0, microsecond=0)
+    if current_datetime.minute > 0 or current_datetime.second > 0:
+        default_start += timedelta(hours=1)
     
-    return render_template('events.html', events=all_events, now=get_current_datetime(get_user_timezone(username)))
+    # If it's late (after 10 PM), default to tomorrow at 9 AM
+    if default_start.hour >= 22:
+        default_start = (current_datetime + timedelta(days=1)).replace(hour=9, minute=0, second=0, microsecond=0)
+    
+    # Default end: 1 hour after start
+    default_end = default_start + timedelta(hours=1)
+    
+    default_start_str = default_start.strftime('%Y-%m-%dT%H:%M')
+    default_end_str = default_end.strftime('%Y-%m-%dT%H:%M')
+    
+    return render_template('events.html', 
+                         events=all_events, 
+                         now=current_datetime,
+                         default_start=default_start_str,
+                         default_end=default_end_str)
 
 # Route for saving new event
 @app.route('/save_event', methods=['POST'])
