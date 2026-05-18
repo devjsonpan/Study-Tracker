@@ -61,7 +61,18 @@
         </form>
 
         <div class="homework-list">
-            <h2>📋 Your Homework Tasks</h2>
+            <div class="homework-header-container">
+                <h2>📋 Your Homework Tasks</h2>
+                <div class="filter-container">
+                    <label for="sort-tasks">Sort by:</label>
+                    <select id="sort-tasks" onchange="window.location.href='?sort=' + this.value">
+                        <option value="deadline_asc" {% if current_sort == 'deadline_asc' %}selected{% endif %}>Deadline (Soonest)</option>
+                        <option value="deadline_desc" {% if current_sort == 'deadline_desc' %}selected{% endif %}>Deadline (Furthest)</option>
+                        <option value="starred" {% if current_sort == 'starred' %}selected{% endif %}>Starred First</option>
+                        <option value="az" {% if current_sort == 'az' %}selected{% endif %}>Alphabetically (A-Z)</option>
+                    </select>
+                </div>
+            </div>
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -76,7 +87,12 @@
                 <div class="task-item {% if task.is_completed %}completed{% endif %}">
                     <div class="task-info">
                         <div class="task-course">{{ task.course }}</div>
-                        <div class="task-name {% if task.is_completed %}completed{% endif %}">{{ task.task_name }}</div>
+                        <div class="task-name {% if task.is_completed %}completed{% endif %}">
+                            {{ task.task_name }}
+                            <a href="{{ url_for('toggle_task_importance', task_id=task.id) }}" class="star-toggle" style="text-decoration: none; color: inherit; margin-left: 5px;">
+                                {% if task.is_important %}⭐{% else %}☆{% endif %}
+                            </a>
+                        </div>
                         <div class="task-due {% if task.due_date < now and not task.is_completed %}overdue{% endif %}">
                             Due: {{ task.due_date.strftime('%B %d, %Y at %I:%M %p') }}
                             {% if task.due_date < now and not task.is_completed %}
@@ -122,7 +138,7 @@
             const breakKey = 'activeBreakStart_' + username;
             if (localStorage.getItem(studyKey)) {
                 e.preventDefault();
-                const confirmed = window.confirm('You have a study session currently running. Are you sure you want to logout? Your session will not be saved.');
+                const confirmed = window.confirm('You have an active or unsaved study session. Are you sure you want to logout? Your session will not be saved.');
                 if (confirmed) {
                     localStorage.removeItem(studyKey);
                     window.location.href = this.href;
@@ -131,7 +147,7 @@
                 }
             } else if (localStorage.getItem(breakKey)) {
                 e.preventDefault();
-                const confirmed = window.confirm('You have a break session currently running. Are you sure you want to logout? Your break will not be saved.');
+                const confirmed = window.confirm('You have an active or unsaved break session. Are you sure you want to logout? Your break will not be saved.');
                 if (confirmed) {
                     localStorage.removeItem(breakKey);
                     window.location.href = this.href;

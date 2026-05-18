@@ -112,6 +112,7 @@ class HomeworkTask(db.Model):
     description = db.Column(db.String, nullable=True)
     due_date = db.Column(db.DateTime, nullable=False)
     is_completed = db.Column(db.Boolean, default=False, nullable=False)
+    is_important = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=get_current_datetime)
 
 class Event(db.Model):
@@ -123,6 +124,7 @@ class Event(db.Model):
     location = db.Column(db.String, nullable=True)
     description = db.Column(db.String, nullable=True)
     is_completed = db.Column(db.Boolean, default=False, nullable=False)
+    is_important = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=get_current_datetime)
 
 # Define the BreakEntry model for the database
@@ -351,9 +353,20 @@ def homework():
         return redirect(url_for('login'))
 
     username = session['username']
+    sort_by = request.args.get('sort', 'deadline_asc')
     
-    # Get all tasks ordered by due date, regardless of completion status
-    tasks = HomeworkTask.query.filter_by(username=username).order_by(HomeworkTask.due_date).all()
+    query = HomeworkTask.query.filter_by(username=username)
+    
+    if sort_by == 'deadline_desc':
+        query = query.order_by(HomeworkTask.due_date.desc())
+    elif sort_by == 'starred':
+        query = query.order_by(HomeworkTask.is_important.desc(), HomeworkTask.due_date.asc())
+    elif sort_by == 'az':
+        query = query.order_by(HomeworkTask.task_name.asc(), HomeworkTask.due_date.asc())
+    else: # deadline_asc
+        query = query.order_by(HomeworkTask.due_date.asc())
+        
+    tasks = query.all()
 
     # Set default deadline to current day at 11:59 PM
     current_datetime = get_current_datetime(get_user_timezone(username))
@@ -362,7 +375,7 @@ def homework():
     # Format for datetime-local input (YYYY-MM-DDThh:mm)
     default_deadline_str = default_deadline.strftime('%Y-%m-%dT%H:%M')
 
-    return render_template('homework.html', tasks=tasks, now=get_current_datetime(get_user_timezone(username)), default_deadline = default_deadline_str)
+    return render_template('homework.html', tasks=tasks, now=get_current_datetime(get_user_timezone(username)), default_deadline=default_deadline_str, current_sort=sort_by)
 
 # Route for saving new homework task
 @app.route('/save_homework', methods=['POST'])
@@ -408,6 +421,21 @@ def complete_task(task_id):
     
     return redirect(url_for('homework'))
 
+# Route for toggling task importance
+@app.route('/toggle_task_importance/<int:task_id>')
+def toggle_task_importance(task_id):
+    if session.get('username') == None:
+        return redirect(url_for('login'))
+        
+    task = HomeworkTask.query.get_or_404(task_id)
+    
+    if task.username == session['username']:
+        task.is_important = not task.is_important
+        db.session.commit()
+        
+    # Return to same page, keeping query params if any
+    return redirect(request.referrer or url_for('homework'))
+
 # Route for deleting task
 @app.route('/delete_task/<int:task_id>')
 def delete_task(task_id):
@@ -441,15 +469,26 @@ def edit_task(task_id):
     
     return redirect(url_for('homework'))
  
-# Route for the events page
 @app.route('/events')
 def events():
     if session.get('username') == None:
         return redirect(url_for('login'))
     
     username = session['username']
+    sort_by = request.args.get('sort', 'start_asc')
     
-    all_events = Event.query.filter_by(username=username).order_by(Event.start_datetime).all()
+    query = Event.query.filter_by(username=username)
+    
+    if sort_by == 'start_desc':
+        query = query.order_by(Event.start_datetime.desc())
+    elif sort_by == 'starred':
+        query = query.order_by(Event.is_important.desc(), Event.start_datetime.asc())
+    elif sort_by == 'az':
+        query = query.order_by(Event.event_name.asc(), Event.start_datetime.asc())
+    else: # start_asc
+        query = query.order_by(Event.start_datetime.asc())
+        
+    all_events = query.all()
 
     current_datetime = get_current_datetime(get_user_timezone(username))
 
@@ -472,7 +511,8 @@ def events():
                          events=all_events, 
                          now=current_datetime,
                          default_start=default_start_str,
-                         default_end=default_end_str)
+                         default_end=default_end_str,
+                         current_sort=sort_by)
 
 # Route for saving new event
 @app.route('/save_event', methods=['POST'])
@@ -524,6 +564,21 @@ def complete_event(event_id):
         db.session.commit()
     
     return redirect(url_for('events'))
+
+# Route for toggling event importance
+@app.route('/toggle_event_importance/<int:event_id>')
+def toggle_event_importance(event_id):
+    if session.get('username') == None:
+        return redirect(url_for('login'))
+        
+    event = Event.query.get_or_404(event_id)
+    
+    if event.username == session['username']:
+        event.is_important = not event.is_important
+        db.session.commit()
+        
+    # Return to same page, keeping query params if any
+    return redirect(request.referrer or url_for('events'))
 
 # Route for deleting event
 @app.route('/delete_event/<int:event_id>')
@@ -665,12 +720,23 @@ def notes():
         return redirect(url_for('login'))
     
     username = session['username']
-    sessions_with_notes = StudySession.query.filter_by(
+    sort_by = request.args.get('sort', 'newest')
+    
+    query = StudySession.query.filter_by(
         username=username,
         hidden_from_notes=False
-    ).order_by(StudySession.date.desc(), StudySession.time_out.desc()).all()
+    )
     
-    return render_template('notes.html', sessions=sessions_with_notes)
+    if sort_by == 'oldest':
+        query = query.order_by(StudySession.date.asc(), StudySession.time_in.asc())
+    elif sort_by == 'az':
+        query = query.order_by(StudySession.course.asc(), StudySession.date.desc())
+    else: # newest
+        query = query.order_by(StudySession.date.desc(), StudySession.time_out.desc())
+        
+    sessions_with_notes = query.all()
+    
+    return render_template('notes.html', sessions=sessions_with_notes, current_sort=sort_by)
 
 # Route for deleting a note
 @app.route('/delete_note/<int:session_id>')

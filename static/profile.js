@@ -21,7 +21,7 @@ document.querySelector('.logout-link').addEventListener('click', function(e) {
     const breakKey = 'activeBreakStart_' + username;
     if (localStorage.getItem(studyKey)) {
         e.preventDefault();
-        const confirmed = window.confirm('You have a study session currently running. Are you sure you want to logout? Your session will not be saved.');
+        const confirmed = window.confirm('You have an active or unsaved study session. Are you sure you want to logout? Your session will not be saved.');
         if (confirmed) {
             localStorage.removeItem(studyKey);
             window.location.href = this.href;
@@ -30,7 +30,7 @@ document.querySelector('.logout-link').addEventListener('click', function(e) {
         }
     } else if (localStorage.getItem(breakKey)) {
         e.preventDefault();
-        const confirmed = window.confirm('You have a break session currently running. Are you sure you want to logout? Your break will not be saved.');
+        const confirmed = window.confirm('You have an active or unsaved break session. Are you sure you want to logout? Your break will not be saved.');
         if (confirmed) {
             localStorage.removeItem(breakKey);
             window.location.href = this.href;

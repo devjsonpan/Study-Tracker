@@ -253,7 +253,7 @@ input:focus {
 }
 
 .timer-btn {
-    padding: 15px 40px;
+    padding: 12px 25px;
     font-size: 18px;
     font-weight: bold;
     border: none;
@@ -280,6 +280,36 @@ input:focus {
 
 .stop-btn:hover {
     background-color: #c53030;
+    transform: translateY(-2px);
+}
+
+.pause-btn {
+    background-color: #ed8936;
+    box-shadow: 0 4px 10px rgba(237, 137, 54, 0.3);
+}
+
+.pause-btn:hover {
+    background-color: #dd6b20;
+    transform: translateY(-2px);
+}
+
+.resume-btn {
+    background-color: #4299e1;
+    box-shadow: 0 4px 10px rgba(66, 153, 225, 0.3);
+}
+
+.resume-btn:hover {
+    background-color: #3182ce;
+    transform: translateY(-2px);
+}
+
+.cancel-btn {
+    background-color: #a0aec0;
+    box-shadow: 0 4px 10px rgba(160, 174, 192, 0.3);
+}
+
+.cancel-btn:hover {
+    background-color: #718096;
     transform: translateY(-2px);
 }
 

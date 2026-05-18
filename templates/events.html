@@ -79,7 +79,18 @@
         </form>
 
         <div class="events-list">
-            <h2>📅 Your Events</h2>
+            <div class="events-header-container">
+                <h2>📅 Your Events</h2>
+                <div class="filter-container">
+                    <label for="sort-events">Sort by:</label>
+                    <select id="sort-events" onchange="window.location.href='?sort=' + this.value">
+                        <option value="start_asc" {% if current_sort == 'start_asc' %}selected{% endif %}>Date (Soonest)</option>
+                        <option value="start_desc" {% if current_sort == 'start_desc' %}selected{% endif %}>Date (Furthest)</option>
+                        <option value="starred" {% if current_sort == 'starred' %}selected{% endif %}>Starred First</option>
+                        <option value="az" {% if current_sort == 'az' %}selected{% endif %}>Alphabetically (A-Z)</option>
+                    </select>
+                </div>
+            </div>
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -95,7 +106,12 @@
                 {% for event in events %}
                 <div class="event-item {% if event.is_completed %}completed{% endif %}">
                     <div class="event-info">
-                        <div class="event-name {% if event.is_completed %}completed{% endif %}">{{ event.event_name }}</div>
+                        <div class="event-name {% if event.is_completed %}completed{% endif %}">
+                            {{ event.event_name }}
+                            <a href="{{ url_for('toggle_event_importance', event_id=event.id) }}" class="star-toggle" style="text-decoration: none; color: inherit; margin-left: 5px;">
+                                {% if event.is_important %}⭐{% else %}☆{% endif %}
+                            </a>
+                        </div>
                         <div class="event-dates">
                             📅 {{ event.start_datetime.strftime('%b %d, %Y') }}
                             🕐 {{ event.start_datetime.strftime('%I:%M %p') }}
@@ -156,7 +172,7 @@
             const breakKey = 'activeBreakStart_' + username;
             if (localStorage.getItem(studyKey)) {
                 e.preventDefault();
-                const confirmed = window.confirm('You have a study session currently running. Are you sure you want to logout? Your session will not be saved.');
+                const confirmed = window.confirm('You have an active or unsaved study session. Are you sure you want to logout? Your session will not be saved.');
                 if (confirmed) {
                     localStorage.removeItem(studyKey);
                     window.location.href = this.href;
@@ -165,7 +181,7 @@
                 }
             } else if (localStorage.getItem(breakKey)) {
                 e.preventDefault();
-                const confirmed = window.confirm('You have a break session currently running. Are you sure you want to logout? Your break will not be saved.');
+                const confirmed = window.confirm('You have an active or unsaved break session. Are you sure you want to logout? Your break will not be saved.');
                 if (confirmed) {
                     localStorage.removeItem(breakKey);
                     window.location.href = this.href;

@@ -35,7 +35,17 @@
         </div>
         
         <div class="notes-container">
-            <h1>📝 Study Notes</h1>
+            <div class="notes-header-container">
+                <h1>📝 Study Notes</h1>
+                <div class="filter-container">
+                    <label for="sort-notes">Sort by:</label>
+                    <select id="sort-notes" onchange="window.location.href='?sort=' + this.value">
+                        <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Date (Newest to Oldest)</option>
+                        <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Date (Oldest to Newest)</option>
+                        <option value="az" {% if current_sort == 'az' %}selected{% endif %}>Alphabetically (A-Z)</option>
+                    </select>
+                </div>
+            </div>
             
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -104,7 +114,7 @@
             const breakKey = 'activeBreakStart_' + username;
             if (localStorage.getItem(studyKey)) {
                 e.preventDefault();
-                const confirmed = window.confirm('You have a study session currently running. Are you sure you want to logout? Your session will not be saved.');
+                const confirmed = window.confirm('You have an active or unsaved study session. Are you sure you want to logout? Your session will not be saved.');
                 if (confirmed) {
                     localStorage.removeItem(studyKey);
                     window.location.href = this.href;
@@ -113,7 +123,7 @@
                 }
             } else if (localStorage.getItem(breakKey)) {
                 e.preventDefault();
-                const confirmed = window.confirm('You have a break session currently running. Are you sure you want to logout? Your break will not be saved.');
+                const confirmed = window.confirm('You have an active or unsaved break session. Are you sure you want to logout? Your break will not be saved.');
                 if (confirmed) {
                     localStorage.removeItem(breakKey);
                     window.location.href = this.href;
