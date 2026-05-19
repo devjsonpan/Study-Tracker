@@ -205,7 +205,7 @@
 
         function filterEvents() {
             const query = document.getElementById('search-events').value.toLowerCase();
-            const events = document.querySelectorAll('.event-card');
+            const events = document.querySelectorAll('.event-item');
             events.forEach(event => {
                 const text = event.textContent.toLowerCase();
                 event.style.display = text.includes(query) ? '' : 'none';
