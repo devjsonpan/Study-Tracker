@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="/static/events.css">
     <link rel="stylesheet" href="/static/dropdown.css">
     <script src="/static/events.js"></script>
+    <script>window.USERNAME = "{{ session.get('username', '') }}";</script>
     <script src="/static/dropdown.js"></script>
+    <link rel="stylesheet" href="/static/dark_mode.css">
 </head>
 
 <body>
@@ -82,13 +84,23 @@
             <div class="events-header-container">
                 <h2>📅 Your Events</h2>
                 <div class="filter-container">
-                    <label for="sort-events">Sort by:</label>
-                    <select id="sort-events" onchange="window.location.href='?sort=' + this.value">
+                    <div class="search-container">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="search-events" placeholder="Search events..." class="search-bar" onkeyup="filterEvents()">
+                    </div>
+                    <div class="sort-controls">
+                        <label for="sort-events">Sort by:</label>
+                        <select id="sort-events" onchange="window.location.href='?sort=' + this.value">
                         <option value="start_asc" {% if current_sort == 'start_asc' %}selected{% endif %}>Date (Soonest)</option>
                         <option value="start_desc" {% if current_sort == 'start_desc' %}selected{% endif %}>Date (Furthest)</option>
                         <option value="starred" {% if current_sort == 'starred' %}selected{% endif %}>Starred First</option>
+                        <option value="not_completed" {% if current_sort == 'not_completed' %}selected{% endif %}>Not Completed First</option>
                         <option value="az" {% if current_sort == 'az' %}selected{% endif %}>Alphabetically (A-Z)</option>
                     </select>
+                    </div>
                 </div>
             </div>
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -190,6 +202,15 @@
                 }
             }
         });
+
+        function filterEvents() {
+            const query = document.getElementById('search-events').value.toLowerCase();
+            const events = document.querySelectorAll('.event-card');
+            events.forEach(event => {
+                const text = event.textContent.toLowerCase();
+                event.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
     </script>
 </body>
 </html>

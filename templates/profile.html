@@ -7,9 +7,11 @@
     <link rel="stylesheet" href="/static/profile.css">
     <link rel="stylesheet" href="/static/dropdown.css">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.default.min.css" rel="stylesheet"/>
+    <script>window.USERNAME = "{{ session.get('username', '') }}";</script>
     <script src="/static/dropdown.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script src="/static/profile.js"></script>
+    <link rel="stylesheet" href="/static/dark_mode.css">
 </head>
 <body>
     <div class="side-panel">
@@ -71,9 +73,49 @@
                     <small class="form-help">Select your timezone to ensure accurate tracking.</small>
                 </div>
                 
+                <div class="form-group">
+                    <label>Theme Preference</label>
+                    <input type="hidden" id="theme-pref-input" name="theme_pref" value="">
+                    <button type="button" id="theme-toggle-btn" class="submit-button" style="background-color: #4a5568; margin-top: 0;" onclick="toggleThemeAndUpdateBtn()">Switch Theme</button>
+                    <small class="form-help">Toggle between light and dark themes (saves when you submit the form).</small>
+                </div>
+                
                 <button type="submit" class="submit-button">Save Changes</button>
             </form>
         </div>
     </div>
+    <script>
+        function getThemeKey() {
+            return window.USERNAME ? 'theme_' + window.USERNAME : 'theme';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize hidden input and button text based on current saved theme
+            const currentTheme = localStorage.getItem(getThemeKey()) || 'light';
+            document.getElementById('theme-pref-input').value = currentTheme;
+            updateThemeBtnText();
+        });
+
+        function updateThemeBtnText() {
+            const btn = document.getElementById('theme-toggle-btn');
+            const themeInput = document.getElementById('theme-pref-input').value;
+            if (themeInput === 'dark') {
+                btn.textContent = 'Switch to Light Mode';
+            } else {
+                btn.textContent = 'Switch to Dark Mode';
+            }
+        }
+        
+        function toggleThemeAndUpdateBtn() {
+            const themeInput = document.getElementById('theme-pref-input');
+            themeInput.value = themeInput.value === 'dark' ? 'light' : 'dark';
+            updateThemeBtnText();
+        }
+
+        document.querySelector('.profile-form').addEventListener('submit', function() {
+            const selectedTheme = document.getElementById('theme-pref-input').value;
+            localStorage.setItem(getThemeKey(), selectedTheme);
+        });
+    </script>
 </body>
 </html>

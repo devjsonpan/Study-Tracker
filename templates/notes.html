@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="/static/notes.css">
     <link rel="stylesheet" href="/static/dropdown.css">
     <script src="/static/notes.js"></script>
+    <script>window.USERNAME = "{{ session.get('username', '') }}";</script>
     <script src="/static/dropdown.js"></script>
+    <link rel="stylesheet" href="/static/dark_mode.css">
 </head>
 
 <body>
@@ -36,12 +38,20 @@
         
         <div class="notes-container">
             <div class="notes-header-container">
+                <div class="search-container">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="search-notes" placeholder="Search notes..." class="search-bar" onkeyup="filterNotes()">
+                </div>
                 <h1>📝 Study Notes</h1>
                 <div class="filter-container">
                     <label for="sort-notes">Sort by:</label>
                     <select id="sort-notes" onchange="window.location.href='?sort=' + this.value">
                         <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Date (Newest to Oldest)</option>
                         <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Date (Oldest to Newest)</option>
+                        <option value="starred" {% if current_sort == 'starred' %}selected{% endif %}>Starred First</option>
                         <option value="az" {% if current_sort == 'az' %}selected{% endif %}>Alphabetically (A-Z)</option>
                     </select>
                 </div>
@@ -62,7 +72,12 @@
                     {% for session in sessions %}
                     <div class="note-card" id="note-{{ session.id }}">
                         <div class="note-header">
-                            <div class="note-course">{{ session.course }}</div>
+                            <div class="note-course">
+                                {{ session.course }}
+                                <a href="{{ url_for('toggle_note_importance', session_id=session.id) }}" class="star-toggle" style="text-decoration: none; color: inherit; margin-left: 5px;">
+                                    {% if session.is_important %}⭐{% else %}☆{% endif %}
+                                </a>
+                            </div>
                             <div class="note-date">{{ session.date.strftime('%b %d, %Y') }}</div>
                         </div>
                         
@@ -132,6 +147,15 @@
                 }
             }
         });
+
+        function filterNotes() {
+            const query = document.getElementById('search-notes').value.toLowerCase();
+            const notes = document.querySelectorAll('.note-card');
+            notes.forEach(note => {
+                const text = note.textContent.toLowerCase();
+                note.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
     </script>
 </body>
 </html>

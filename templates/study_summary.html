@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/static/study_summary.css">
     <link rel="stylesheet" href="/static/dropdown.css">
     <script src="/static/study_summary.js"></script>
+    <script>window.USERNAME = "{{ session.get('username', '') }}";</script>
     <script src="/static/dropdown.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <script>
@@ -25,6 +26,7 @@
         const todayStudyHours = {{ today_study_hours | tojson }};
         const todayBreakHours = {{ today_break_hours | tojson }};
     </script>
+    <link rel="stylesheet" href="/static/dark_mode.css">
 </head>
 
 <body>

@@ -7,7 +7,10 @@ function deleteNote(noteId) {
 function editNote(noteId) {
     const noteCard = document.getElementById('note-' + noteId);
     
-    const course = noteCard.querySelector('.note-course').textContent;
+    const courseClone = noteCard.querySelector('.note-course').cloneNode(true);
+    const starToggle = courseClone.querySelector('.star-toggle');
+    if (starToggle) starToggle.remove();
+    const course = courseClone.textContent.trim();
     const topicElement = noteCard.querySelector('.note-topic');
     const topic = topicElement ? topicElement.textContent.replace('Topic:', '').trim() : '';
     const notes = noteCard.querySelector('.note-content').textContent.trim();
@@ -19,7 +22,7 @@ function showEditModal(noteId, course, topic, notes) {
     const modalHTML = `
         <div id="edit-modal" class="modal-overlay">
             <div class="modal-content">
-                <h2>Edit Note</h2>
+                <h2>✏️ Edit Note</h2>
                 <form id="edit-form" onsubmit="saveEdit(event, ${noteId})">
                     <div class="form-group">
                         <label>Course:</label>

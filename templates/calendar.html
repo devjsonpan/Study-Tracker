@@ -7,12 +7,14 @@
     <link rel="stylesheet" href="/static/calendar.css">
     <link rel="stylesheet" href="/static/dropdown.css">
     <script src="/static/calendar.js"></script>
+    <script>window.USERNAME = "{{ session.get('username', '') }}";</script>
     <script src="/static/dropdown.js"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
     <script>
         // Pass server events to JS
         const calendarEvents = {{ calendar_events | tojson }};
     </script>
+    <link rel="stylesheet" href="/static/dark_mode.css">
 </head>
 
 <body>

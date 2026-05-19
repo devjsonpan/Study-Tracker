@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="/static/homework.css">
     <link rel="stylesheet" href="/static/dropdown.css">
     <script src="/static/homework.js"></script>
+    <script>window.USERNAME = "{{ session.get('username', '') }}";</script>
     <script src="/static/dropdown.js"></script>
+    <link rel="stylesheet" href="/static/dark_mode.css">
 </head>
 
 <body>
@@ -64,13 +66,23 @@
             <div class="homework-header-container">
                 <h2>📋 Your Homework Tasks</h2>
                 <div class="filter-container">
-                    <label for="sort-tasks">Sort by:</label>
-                    <select id="sort-tasks" onchange="window.location.href='?sort=' + this.value">
+                    <div class="search-container">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="search-tasks" placeholder="Search tasks..." class="search-bar" onkeyup="filterTasks()">
+                    </div>
+                    <div class="sort-controls">
+                        <label for="sort-tasks">Sort by:</label>
+                        <select id="sort-tasks" onchange="window.location.href='?sort=' + this.value">
                         <option value="deadline_asc" {% if current_sort == 'deadline_asc' %}selected{% endif %}>Deadline (Soonest)</option>
                         <option value="deadline_desc" {% if current_sort == 'deadline_desc' %}selected{% endif %}>Deadline (Furthest)</option>
                         <option value="starred" {% if current_sort == 'starred' %}selected{% endif %}>Starred First</option>
+                        <option value="not_completed" {% if current_sort == 'not_completed' %}selected{% endif %}>Not Completed First</option>
                         <option value="az" {% if current_sort == 'az' %}selected{% endif %}>Alphabetically (A-Z)</option>
                     </select>
+                    </div>
                 </div>
             </div>
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -156,6 +168,15 @@
                 }
             }
         });
+
+        function filterTasks() {
+            const query = document.getElementById('search-tasks').value.toLowerCase();
+            const tasks = document.querySelectorAll('.task-item');
+            tasks.forEach(task => {
+                const text = task.textContent.toLowerCase();
+                task.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
     </script>
 </body>
 </html>

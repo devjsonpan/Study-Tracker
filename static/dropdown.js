@@ -1,3 +1,14 @@
+function getThemeKey() {
+    return window.USERNAME ? 'theme_' + window.USERNAME : 'theme';
+}
+
+// Apply dark theme immediately if saved
+(function() {
+    if (localStorage.getItem(getThemeKey()) === 'dark') {
+        document.documentElement.classList.add('dark-theme');
+    }
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
     var buttons = document.getElementsByClassName("profile-button");
     for (var i = 0; i < buttons.length; i++) {

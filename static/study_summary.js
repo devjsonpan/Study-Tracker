@@ -16,8 +16,12 @@ function generateColors(count) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+    const isDark = document.documentElement.classList.contains('dark-theme');
+    const gridColor = isDark ? '#475569' : '#e2e8f0';
+    const textColor = isDark ? '#f8fafc' : '#4a5568';
+    
     Chart.defaults.font.family = 'Arial, sans-serif';
-    Chart.defaults.color = '#4a5568';
+    Chart.defaults.color = textColor;
 
     // Friends daily grouped bar chart (only if in a group)
     const friendsDailyEl = document.getElementById('friendsDailyChart');
@@ -47,8 +51,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 responsive: true,
                 plugins: { legend: { position: 'bottom' } },
                 scales: {
-                    x: { beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { callback: v => v + 'h' } },
-                    y: { grid: { display: false } }
+                    x: { beginAtZero: true, grid: { color: gridColor }, border: { color: gridColor }, ticks: { callback: v => v + 'h' } },
+                    y: { grid: { display: false }, border: { color: gridColor } }
                 }
             }
         });
@@ -82,8 +86,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 responsive: true,
                 plugins: { legend: { position: 'bottom' } },
                 scales: {
-                    x: { beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { callback: v => v + 'h' } },
-                    y: { grid: { display: false } }
+                    x: { beginAtZero: true, grid: { color: gridColor }, border: { color: gridColor }, ticks: { callback: v => v + 'h' } },
+                    y: { grid: { display: false }, border: { color: gridColor } }
                 }
             }
         });
@@ -98,8 +102,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 datasets: [{
                     data: courseHours,
                     backgroundColor: generateColors(courseLabels.length),
-                    borderWidth: 2,
-                    borderColor: '#fff',
+                    borderWidth: 0,
+                    borderColor: 'transparent',
                 }]
             },
             options: {
@@ -121,8 +125,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     datasets: [{
                         data: todayCourseHours,
                         backgroundColor: generateColors(todayCourseLabels.length),
-                        borderWidth: 2,
-                        borderColor: '#fff',
+                        borderWidth: 0,
+                        borderColor: 'transparent',
                     }]
                 },
                 options: {
@@ -166,8 +170,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 responsive: true,
                 plugins: { legend: { position: 'bottom' } },
                 scales: {
-                    x: { grid: { display: false } },
-                    y: { beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { callback: v => v + 'h' } }
+                    x: { grid: { display: false }, border: { color: gridColor } },
+                    y: { beginAtZero: true, grid: { color: gridColor }, border: { color: gridColor }, ticks: { callback: v => v + 'h' } }
                 }
             }
         });
@@ -239,8 +243,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     maintainAspectRatio: false,
                     plugins: { legend: { position: 'bottom' } },
                     scales: {
-                        x: { grid: { display: false } },
-                        y: { beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { callback: v => v + 'h' } }
+                        x: { grid: { display: false }, border: { color: gridColor } },
+                        y: { beginAtZero: true, grid: { color: gridColor }, border: { color: gridColor }, ticks: { callback: v => v + 'h' } }
                     }
                 }
             });

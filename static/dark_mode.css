@@ -1,0 +1,270 @@
+/* Global backgrounds and text */
+html.dark-theme body {
+    background-color: #0f172a !important;
+    color: #f8fafc;
+}
+
+html.dark-theme .side-panel {
+    background-color: #020617 !important;
+}
+
+/* Cards and containers */
+html.dark-theme .note-card,
+html.dark-theme .task-item,
+html.dark-theme .event-item,
+html.dark-theme .modal-content,
+html.dark-theme .profile-container,
+html.dark-theme .summary-card,
+html.dark-theme .stat-card,
+html.dark-theme .container,
+html.dark-theme .homework-form,
+html.dark-theme .homework-list,
+html.dark-theme .events-form,
+html.dark-theme .events-list,
+html.dark-theme .chart-card,
+html.dark-theme .group-header-box,
+html.dark-theme .leaderboard-card,
+html.dark-theme .empty-state,
+html.dark-theme .group-card,
+html.dark-theme .calendar-container,
+html.dark-theme .legend-container,
+html.dark-theme .break-form,
+html.dark-theme .session-form,
+html.dark-theme .home-container,
+html.dark-theme .dashboard-card,
+html.dark-theme .legend,
+html.dark-theme #modal-box,
+html.dark-theme .welcome-card,
+html.dark-theme .guide-card,
+html.dark-theme .no-notes,
+html.dark-theme .no-tasks,
+html.dark-theme .no-events {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+}
+
+html.dark-theme .no-notes h2,
+html.dark-theme .empty-state h3 {
+    color: #f8fafc !important;
+}
+
+html.dark-theme .no-notes p,
+html.dark-theme .empty-state p {
+    color: #cbd5e1 !important;
+}
+
+/* Distinct boxes (info, instructions, filters, search) */
+html.dark-theme .info-box,
+html.dark-theme .instruction-box,
+html.dark-theme .filter-container,
+html.dark-theme .search-container {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+    border-color: #475569 !important;
+}
+
+/* Restore left border colors for items */
+html.dark-theme .task-item,
+html.dark-theme .event-item {
+    border-left-color: #667eea !important;
+    background-color: #1f2a3f !important;
+}
+html.dark-theme .task-item.completed,
+html.dark-theme .event-item.completed {
+    border-left-color: #48bb78 !important;
+}
+
+/* Form elements */
+html.dark-theme input:not([type="submit"]):not([type="button"]),
+html.dark-theme select,
+html.dark-theme textarea {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+    border: 1px solid #475569 !important;
+}
+
+/* Headings and labels inside dark cards */
+html.dark-theme .profile-container h1,
+html.dark-theme .profile-container label,
+html.dark-theme .homework-form h1,
+html.dark-theme .homework-list h2,
+html.dark-theme .events-form h1,
+html.dark-theme .events-list h2,
+html.dark-theme .chart-card h3,
+html.dark-theme .group-card h4,
+html.dark-theme .leaderboard-card h3,
+html.dark-theme .home-container h1,
+html.dark-theme .home-container h2,
+html.dark-theme .dashboard-card h3,
+html.dark-theme .calendar-container h1,
+html.dark-theme .session-form h1,
+html.dark-theme .break-form h1,
+html.dark-theme .legend-container span,
+html.dark-theme .legend,
+html.dark-theme .instruction-box,
+html.dark-theme #modal-box h2,
+html.dark-theme .modal-label,
+html.dark-theme .modal-value,
+html.dark-theme .welcome-card h1,
+html.dark-theme .guide-body h3,
+html.dark-theme h1,
+html.dark-theme h2,
+html.dark-theme h3,
+html.dark-theme label {
+    color: #f8fafc !important;
+}
+
+/* Course and topic titles */
+html.dark-theme .note-course,
+html.dark-theme .task-course {
+    color: #818cf8 !important;
+}
+
+html.dark-theme .task-name,
+html.dark-theme .event-name,
+html.dark-theme .note-topic {
+    color: #f8fafc !important;
+}
+
+/* Timers */
+html.dark-theme .timer-container {
+    background: #334155 !important;
+    border-color: #475569 !important;
+}
+html.dark-theme .timer-display {
+    color: #f8fafc !important;
+}
+html.dark-theme .timer-display.active {
+    color: #818cf8 !important;
+}
+html.dark-theme .timer-status {
+    color: #cbd5e1 !important;
+}
+
+/* Subtle backgrounds for dates/meta */
+html.dark-theme .event-dates,
+html.dark-theme .event-meta {
+    background-color: transparent !important;
+    color: #cbd5e1 !important;
+}
+
+html.dark-theme .note-date {
+    background-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+
+html.dark-theme .task-due {
+    color: #cbd5e1 !important;
+}
+
+/* Study Summary specifics */
+html.dark-theme .leaderboard-row {
+    background: #334155 !important;
+    color: #f8fafc !important;
+}
+html.dark-theme .leaderboard-row.is-you {
+    background: #475569 !important;
+    border-color: #64748b !important;
+}
+html.dark-theme .lb-name,
+html.dark-theme .chart-subtitle,
+html.dark-theme .trend-info {
+    color: #cbd5e1 !important;
+}
+
+/* Profile Dropdown */
+html.dark-theme .dropdown-content {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+html.dark-theme .dropdown-content a {
+    color: #f8fafc !important;
+}
+html.dark-theme .dropdown-content a:hover {
+    background-color: #334155 !important;
+}
+
+/* TomSelect Dropdowns (Profile Timezone, etc.) */
+html.dark-theme .profile-form .ts-wrapper .ts-control,
+html.dark-theme .profile-form .ts-wrapper.dropdown-active .ts-control,
+html.dark-theme .profile-form .ts-wrapper.input-active .ts-control,
+html.dark-theme .profile-form .ts-wrapper.focus .ts-control {
+    background: #334155 !important;
+    border-color: #475569 !important;
+    color: #f8fafc !important;
+}
+html.dark-theme .profile-form .ts-wrapper.focus .ts-control {
+    border-color: #667eea !important;
+}
+html.dark-theme .profile-form .ts-dropdown {
+    background: #334155 !important;
+    border-color: #475569 !important;
+    color: #f8fafc !important;
+}
+html.dark-theme .profile-form .ts-dropdown .option {
+    color: #f8fafc !important;
+}
+html.dark-theme .profile-form .ts-dropdown .option:hover,
+html.dark-theme .profile-form .ts-dropdown .option.active {
+    background: #475569 !important;
+    color: #f8fafc !important;
+}
+html.dark-theme .profile-form .ts-wrapper .ts-control input {
+    background: transparent !important;
+    color: #f8fafc !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+html.dark-theme .profile-form .ts-wrapper .ts-control input::placeholder {
+    color: #94a3b8 !important;
+}
+
+/* Note Content Block */
+html.dark-theme .note-content {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+}
+
+/* Completed items */
+html.dark-theme .completed {
+    opacity: 0.7;
+}
+
+html.dark-theme .task-item.completed,
+html.dark-theme .event-item.completed {
+    background-color: #1f332f !important;
+}
+
+/* Links and helpful text */
+html.dark-theme .form-help,
+html.dark-theme .task-description {
+    color: #94a3b8 !important;
+}
+
+/* Table styles if any */
+html.dark-theme table th {
+    background-color: #334155 !important;
+    color: #f8fafc !important;
+}
+html.dark-theme table td {
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+}
+
+/* FullCalendar Dark Mode overrides */
+html.dark-theme .fc .fc-toolbar-title,
+html.dark-theme .fc .fc-col-header-cell-cushion,
+html.dark-theme .fc .fc-daygrid-day-number {
+    color: #f8fafc !important;
+}
+
+html.dark-theme .fc-theme-standard td,
+html.dark-theme .fc-theme-standard th,
+html.dark-theme .fc-theme-standard .fc-scrollgrid {
+    border-color: #475569 !important;
+}
+
+html.dark-theme .fc-day-today {
+    background-color: #334155 !important;
+}

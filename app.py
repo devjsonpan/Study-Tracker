@@ -102,6 +102,7 @@ class StudySession(db.Model):
     date = db.Column(db.Date, nullable=False)
     notes = db.Column(db.String, nullable=True)
     hidden_from_notes = db.Column(db.Boolean, default=False, nullable=False)
+    is_important = db.Column(db.Boolean, default=False, nullable=False)
 
 # Define the HomeworkTask model for the database
 class HomeworkTask(db.Model):
@@ -363,6 +364,8 @@ def homework():
         query = query.order_by(HomeworkTask.is_important.desc(), HomeworkTask.due_date.asc())
     elif sort_by == 'az':
         query = query.order_by(HomeworkTask.task_name.asc(), HomeworkTask.due_date.asc())
+    elif sort_by == 'not_completed':
+        query = query.order_by(HomeworkTask.is_completed.asc(), HomeworkTask.due_date.asc())
     else: # deadline_asc
         query = query.order_by(HomeworkTask.due_date.asc())
         
@@ -485,6 +488,8 @@ def events():
         query = query.order_by(Event.is_important.desc(), Event.start_datetime.asc())
     elif sort_by == 'az':
         query = query.order_by(Event.event_name.asc(), Event.start_datetime.asc())
+    elif sort_by == 'not_completed':
+        query = query.order_by(Event.is_completed.asc(), Event.start_datetime.asc())
     else: # start_asc
         query = query.order_by(Event.start_datetime.asc())
         
@@ -731,12 +736,28 @@ def notes():
         query = query.order_by(StudySession.date.asc(), StudySession.time_in.asc())
     elif sort_by == 'az':
         query = query.order_by(StudySession.course.asc(), StudySession.date.desc())
+    elif sort_by == 'starred':
+        query = query.order_by(StudySession.is_important.desc(), StudySession.date.desc())
     else: # newest
         query = query.order_by(StudySession.date.desc(), StudySession.time_out.desc())
         
     sessions_with_notes = query.all()
     
     return render_template('notes.html', sessions=sessions_with_notes, current_sort=sort_by)
+
+# Route for toggling note importance
+@app.route('/toggle_note_importance/<int:session_id>')
+def toggle_note_importance(session_id):
+    if session.get('username') == None:
+        return redirect(url_for('login'))
+        
+    study_session = StudySession.query.get_or_404(session_id)
+    
+    if study_session.username == session['username']:
+        study_session.is_important = not study_session.is_important
+        db.session.commit()
+        
+    return redirect(request.referrer or url_for('notes'))
 
 # Route for deleting a note
 @app.route('/delete_note/<int:session_id>')
