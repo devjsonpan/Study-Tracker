@@ -354,8 +354,12 @@ def homework():
         return redirect(url_for('login'))
 
     username = session['username']
-    sort_by = request.args.get('sort', 'deadline_asc')
-    
+    sort_by = request.args.get('sort')
+    if sort_by:
+        session['sort_homework'] = sort_by
+    else:
+        sort_by = session.get('sort_homework', 'deadline_asc')
+
     query = HomeworkTask.query.filter_by(username=username)
     
     if sort_by == 'deadline_desc':
@@ -404,10 +408,10 @@ def save_homework():
         
         db.session.add(new_task)
         db.session.commit()
-        
-        return redirect(url_for('homework'))
-    
-    return redirect(url_for('homework'))
+
+        return redirect(url_for('homework', sort=session.get('sort_homework', 'deadline_asc')))
+
+    return redirect(url_for('homework', sort=session.get('sort_homework', 'deadline_asc')))
 
 # Route for marking task as completed
 @app.route('/complete_task/<int:task_id>')
@@ -421,8 +425,8 @@ def complete_task(task_id):
     if task.username == session['username']:
         task.is_completed = not task.is_completed  # Toggle completion status
         db.session.commit()
-    
-    return redirect(url_for('homework'))
+
+    return redirect(url_for('homework', sort=session.get('sort_homework', 'deadline_asc')))
 
 # Route for toggling task importance
 @app.route('/toggle_task_importance/<int:task_id>')
@@ -451,8 +455,8 @@ def delete_task(task_id):
     if task.username == session['username']:
         db.session.delete(task)
         db.session.commit()
-    
-    return redirect(url_for('homework'))
+
+    return redirect(url_for('homework', sort=session.get('sort_homework', 'deadline_asc')))
 
 # Route for editing a homework task
 @app.route('/edit_task/<int:task_id>', methods=['POST'])
@@ -469,8 +473,8 @@ def edit_task(task_id):
         task.description = request.form.get('description')
         db.session.commit()
         flash('Task updated successfully!', 'success')
-    
-    return redirect(url_for('homework'))
+
+    return redirect(url_for('homework', sort=session.get('sort_homework', 'deadline_asc')))
  
 @app.route('/events')
 def events():
@@ -478,8 +482,12 @@ def events():
         return redirect(url_for('login'))
     
     username = session['username']
-    sort_by = request.args.get('sort', 'start_asc')
-    
+    sort_by = request.args.get('sort')
+    if sort_by:
+        session['sort_events'] = sort_by
+    else:
+        sort_by = session.get('sort_events', 'start_asc')
+
     query = Event.query.filter_by(username=username)
     
     if sort_by == 'start_desc':
@@ -537,8 +545,8 @@ def save_event():
         
         if start_datetime >= end_datetime:
             flash('The start time must be before the end time.', 'error')
-            return redirect(url_for('events'))
-        
+            return redirect(url_for('events', sort=session.get('sort_events', 'start_asc')))
+
         new_event = Event(
             username=username,
             event_name=event_name,
@@ -550,10 +558,10 @@ def save_event():
         
         db.session.add(new_event)
         db.session.commit()
-        
-        return redirect(url_for('events'))
-    
-    return redirect(url_for('events'))
+
+        return redirect(url_for('events', sort=session.get('sort_events', 'start_asc')))
+
+    return redirect(url_for('events', sort=session.get('sort_events', 'start_asc')))
 
 # Route for marking event as completed
 @app.route('/complete_event/<int:event_id>')
@@ -567,8 +575,8 @@ def complete_event(event_id):
     if event.username == session['username']:
         event.is_completed = not event.is_completed  # Toggle completion status
         db.session.commit()
-    
-    return redirect(url_for('events'))
+
+    return redirect(url_for('events', sort=session.get('sort_events', 'start_asc')))
 
 # Route for toggling event importance
 @app.route('/toggle_event_importance/<int:event_id>')
@@ -597,8 +605,8 @@ def delete_event(event_id):
     if event.username == session['username']:
         db.session.delete(event)
         db.session.commit()
-    
-    return redirect(url_for('events'))
+
+    return redirect(url_for('events', sort=session.get('sort_events', 'start_asc')))
 
 # Route for editing an event
 @app.route('/edit_event/<int:event_id>', methods=['POST'])
@@ -614,8 +622,8 @@ def edit_event(event_id):
         
         if start_datetime >= end_datetime:
             flash('The start time must be before the end time.', 'error')
-            return redirect(url_for('events'))
-        
+            return redirect(url_for('events', sort=session.get('sort_events', 'start_asc')))
+
         event.event_name = request.form.get('event_name')
         event.start_datetime = start_datetime
         event.end_datetime = end_datetime
@@ -623,8 +631,8 @@ def edit_event(event_id):
         event.description = request.form.get('description')
         db.session.commit()
         flash('Event updated successfully!', 'success')
-    
-    return redirect(url_for('events'))
+
+    return redirect(url_for('events', sort=session.get('sort_events', 'start_asc')))
 
 # Route for the calendar page
 @app.route('/calendar')
@@ -725,8 +733,12 @@ def notes():
         return redirect(url_for('login'))
     
     username = session['username']
-    sort_by = request.args.get('sort', 'newest')
-    
+    sort_by = request.args.get('sort')
+    if sort_by:
+        session['sort_notes'] = sort_by
+    else:
+        sort_by = session.get('sort_notes', 'newest')
+
     query = StudySession.query.filter_by(
         username=username,
         hidden_from_notes=False
@@ -777,8 +789,8 @@ def delete_note(session_id):
         flash('Note deleted successfully!', 'success')
     else:
         flash('You do not have permission to delete this note.', 'error')
-    
-    return redirect(url_for('notes'))
+
+    return redirect(url_for('notes', sort=session.get('sort_notes', 'newest')))
 
 # Route for editing a note
 @app.route('/edit_note/<int:session_id>', methods=['POST'])
@@ -800,8 +812,8 @@ def edit_note(session_id):
         flash('Note updated successfully!', 'success')
     else:
         flash('You do not have permission to edit this note.', 'error')
-    
-    return redirect(url_for('notes'))
+
+    return redirect(url_for('notes', sort=session.get('sort_notes', 'newest')))
 
 # Helper function to calculate the duration of a study session in minutes
 def calculate_duration_mins(time_in, time_out):
