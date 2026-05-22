@@ -5,6 +5,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
+from collections import defaultdict
 from datetime import datetime
 from datetime import timedelta
 from flask_session import Session
@@ -97,9 +98,8 @@ class StudySession(db.Model):
     username = db.Column(db.String, nullable=False) 
     course = db.Column(db.String, nullable=False)
     topic = db.Column(db.String, nullable=True)
-    time_in = db.Column(db.Time, nullable=False)
-    time_out = db.Column(db.Time, nullable=False)
-    date = db.Column(db.Date, nullable=False)
+    start_datetime = db.Column(db.DateTime, nullable=False)
+    end_datetime = db.Column(db.DateTime, nullable=False)
     notes = db.Column(db.String, nullable=True)
     hidden_from_notes = db.Column(db.Boolean, default=False, nullable=False)
     is_important = db.Column(db.Boolean, default=False, nullable=False)
@@ -132,9 +132,8 @@ class Event(db.Model):
 class BreakEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, nullable=False)
-    time_in = db.Column(db.Time, nullable=False)
-    time_out = db.Column(db.Time, nullable=False)
-    date = db.Column(db.Date, nullable=False)
+    start_datetime = db.Column(db.DateTime, nullable=False)
+    end_datetime = db.Column(db.DateTime, nullable=False)
 
 # Route for the login page
 @app.route('/', methods=['GET', 'POST'])
@@ -325,18 +324,15 @@ def save_study_session():
 
         username = session['username']
 
-        time_in = datetime.strptime(time_in_str, '%H:%M:%S').time()
-        time_out = datetime.strptime(time_out_str, '%H:%M:%S').time()
-
-        current_date = get_current_date(get_user_timezone(username))
+        start_datetime = datetime.strptime(time_in_str, '%Y-%m-%d %H:%M:%S')
+        end_datetime = datetime.strptime(time_out_str, '%Y-%m-%d %H:%M:%S')
 
         new_entry = StudySession(
             username=username, 
             course=course, 
             topic=topic,
-            time_in=time_in, 
-            time_out=time_out,
-            date=current_date,
+            start_datetime=start_datetime, 
+            end_datetime=end_datetime,
             notes=notes
         )
 
@@ -712,13 +708,14 @@ def save_break():
 
         username = session['username']
 
-        time_in = datetime.strptime(time_in_str, '%H:%M:%S').time()
-        time_out = datetime.strptime(time_out_str, '%H:%M:%S').time()
-            
-        current_date = get_current_date(get_user_timezone(username))
+        start_datetime = datetime.strptime(time_in_str, '%Y-%m-%d %H:%M:%S')
+        end_datetime = datetime.strptime(time_out_str, '%Y-%m-%d %H:%M:%S')
 
-        new_entry = BreakEntry(username=username, time_in=time_in, time_out=time_out, date=current_date)
-
+        new_entry = BreakEntry(
+            username=username, 
+            start_datetime=start_datetime, 
+            end_datetime=end_datetime
+        )
         db.session.add(new_entry)
         db.session.commit()
 
@@ -745,13 +742,13 @@ def notes():
     )
     
     if sort_by == 'oldest':
-        query = query.order_by(StudySession.date.asc(), StudySession.time_in.asc())
+        query = query.order_by(StudySession.start_datetime.asc())
     elif sort_by == 'az':
-        query = query.order_by(StudySession.course.asc(), StudySession.date.desc())
+        query = query.order_by(StudySession.course.asc(), StudySession.start_datetime.desc())
     elif sort_by == 'starred':
-        query = query.order_by(StudySession.is_important.desc(), StudySession.date.desc())
+        query = query.order_by(StudySession.is_important.desc(), StudySession.start_datetime.desc())
     else: # newest
-        query = query.order_by(StudySession.date.desc(), StudySession.time_out.desc())
+        query = query.order_by(StudySession.start_datetime.desc())
         
     sessions_with_notes = query.all()
     
@@ -816,13 +813,20 @@ def edit_note(session_id):
     return redirect(url_for('notes', sort=session.get('sort_notes', 'newest')))
 
 # Helper function to calculate the duration of a study session in minutes
-def calculate_duration_mins(time_in, time_out):
-    in_sec = time_in.hour * 3600 + time_in.minute * 60 + time_in.second
-    out_sec = time_out.hour * 3600 + time_out.minute * 60 + time_out.second
-    diff = out_sec - in_sec
-    if diff < 0:
-        diff += 86400
-    return diff / 60.0
+def calculate_duration_mins(start_datetime, end_datetime, target_date=None):
+    if target_date is None:
+        return (end_datetime - start_datetime).total_seconds() / 60.0
+    
+    # Calculate minutes specifically for the target_date
+    start_of_target = datetime.combine(target_date, datetime.min.time())
+    end_of_target = start_of_target + timedelta(days=1)
+    
+    chunk_start = max(start_datetime, start_of_target)
+    chunk_end = min(end_datetime, end_of_target)
+    
+    if chunk_start < chunk_end:
+        return (chunk_end - chunk_start).total_seconds() / 60.0
+    return 0.0
 
 # Route for creating a study group
 @app.route('/create_group', methods=['POST'])
@@ -930,6 +934,8 @@ def study_summary():
     all_users.insert(0, current_user)
 
     today = get_current_date(get_user_timezone(current_username))
+    today_start_dt = datetime.combine(today, datetime.min.time())
+    today_end_dt = today_start_dt + timedelta(days=1)
     week_start = today - timedelta(days=today.weekday())
 
     # Friends comparison data
@@ -942,35 +948,37 @@ def study_summary():
     for user in all_users:
         # Weekly sessions for leaderboard
         user_sessions = StudySession.query.filter_by(username=user.username).filter(
-            StudySession.date >= week_start
+            StudySession.start_datetime >= week_start
         ).all()
         user_breaks = BreakEntry.query.filter_by(username=user.username).filter(
-            BreakEntry.date >= week_start
+            BreakEntry.start_datetime >= week_start
         ).all()
 
         total_study_mins = sum(
-            calculate_duration_mins(s.time_in, s.time_out)
+            (s.end_datetime - s.start_datetime).total_seconds() / 60.0
             for s in user_sessions
         )
         total_break_mins = sum(
-            calculate_duration_mins(b.time_in, b.time_out)
+            (b.end_datetime - b.start_datetime).total_seconds() / 60.0
             for b in user_breaks
         )
 
         # Today's sessions for today graphs
         user_today_sessions = StudySession.query.filter_by(username=user.username).filter(
-            StudySession.date == today
+            StudySession.start_datetime < today_end_dt,
+            StudySession.end_datetime >= today_start_dt
         ).all()
         user_today_breaks = BreakEntry.query.filter_by(username=user.username).filter(
-            BreakEntry.date == today
+            BreakEntry.start_datetime < today_end_dt,
+            BreakEntry.end_datetime >= today_start_dt
         ).all()
 
         today_study_mins = sum(
-            calculate_duration_mins(s.time_in, s.time_out)
+            calculate_duration_mins(s.start_datetime, s.end_datetime, today)
             for s in user_today_sessions
         )
         today_break_mins = sum(
-            calculate_duration_mins(b.time_in, b.time_out)
+            calculate_duration_mins(b.start_datetime, b.end_datetime, today)
             for b in user_today_breaks
         )
 
@@ -991,30 +999,49 @@ def study_summary():
         friend_study_hours, friend_break_hours, friend_names, friend_today_study, friend_today_break = [], [], [], [], []
 
     # Self analytics data
-    my_sessions = StudySession.query.filter_by(username=current_username).order_by(StudySession.date).all()
-    my_breaks = BreakEntry.query.filter_by(username=current_username).order_by(BreakEntry.date).all()
+    my_sessions = StudySession.query.filter_by(username=current_username).order_by(StudySession.start_datetime).all()
+    my_breaks = BreakEntry.query.filter_by(username=current_username).order_by(BreakEntry.start_datetime).all()
 
-    # Course breakdown (minutes per course)
-    course_totals = {}
-    for s in my_sessions:
-        mins = calculate_duration_mins(s.time_in, s.time_out)
-        course_totals[s.course] = course_totals.get(s.course, 0) + mins
-
-    course_labels = list(course_totals.keys())
-    course_hours = [round(m / 60, 2) for m in course_totals.values()]
-
-    # Study hours per day (all recorded days)
-    from collections import defaultdict
+    # Default dictionary for hours
+    today_course_hours = defaultdict(float)
     daily_study = defaultdict(float)
     daily_break = defaultdict(float)
+    today_study_hours = 0
+    today_break_hours = 0
+    first_date = None
 
     for s in my_sessions:
-        mins = calculate_duration_mins(s.time_in, s.time_out)
-        daily_study[s.date] += mins / 60
+        current = s.start_datetime
+        while current < s.end_datetime:
+            next_day = (current + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+            end_of_chunk = min(s.end_datetime, next_day)
+            
+            chunk_hours = (end_of_chunk - current).total_seconds() / 3600.0
+            
+            chunk_date = current.date()
+            daily_study[chunk_date] += chunk_hours
+            
+            if chunk_date == today:
+                today_course_hours[s.course] += chunk_hours
+                today_study_hours += chunk_hours
+                
+            current = end_of_chunk
 
     for b in my_breaks:
-        mins = calculate_duration_mins(b.time_in, b.time_out)
-        daily_break[b.date] += mins / 60
+        current = b.start_datetime
+        while current < b.end_datetime:
+            next_day = (current + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+            end_of_chunk = min(b.end_datetime, next_day)
+            
+            chunk_hours = (end_of_chunk - current).total_seconds() / 3600.0
+            
+            chunk_date = current.date()
+            daily_break[chunk_date] += chunk_hours
+            
+            if chunk_date == today:
+                today_break_hours += chunk_hours
+                
+            current = end_of_chunk
 
     if daily_study or daily_break:
         first_date = min(list(daily_study.keys()) + list(daily_break.keys()))
@@ -1047,26 +1074,37 @@ def study_summary():
 
     # Today's data for My Stats tab
     today_sessions = StudySession.query.filter_by(username=current_username).filter(
-        StudySession.date == today
+        StudySession.start_datetime < today_end_dt,
+        StudySession.end_datetime >= today_start_dt
     ).all()
     today_breaks = BreakEntry.query.filter_by(username=current_username).filter(
-        BreakEntry.date == today
+        BreakEntry.start_datetime < today_end_dt,
+        BreakEntry.end_datetime >= today_start_dt
     ).all()
+
+    # Course breakdown (minutes per course)
+    course_totals = {}
+    for s in my_sessions:
+        mins = (s.end_datetime - s.start_datetime).total_seconds() / 60.0
+        course_totals[s.course] = course_totals.get(s.course, 0) + mins
+
+    course_labels = list(course_totals.keys())
+    course_hours = [round(m / 60, 2) for m in course_totals.values()]
 
     today_course_totals = {}
     for s in today_sessions:
-        mins = calculate_duration_mins(s.time_in, s.time_out)
+        mins = calculate_duration_mins(s.start_datetime, s.end_datetime, today)
         today_course_totals[s.course] = today_course_totals.get(s.course, 0) + mins
 
     today_course_labels = list(today_course_totals.keys())
     today_course_hours = [round(m / 60, 2) for m in today_course_totals.values()]
 
     today_study_mins = sum(
-        calculate_duration_mins(s.time_in, s.time_out)
+        calculate_duration_mins(s.start_datetime, s.end_datetime, today)
         for s in today_sessions
     )
     today_break_mins = sum(
-        calculate_duration_mins(b.time_in, b.time_out)
+        calculate_duration_mins(b.start_datetime, b.end_datetime, today)
         for b in today_breaks
     )
     today_study_hours = round(today_study_mins / 60, 2)

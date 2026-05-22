@@ -79,7 +79,7 @@
                                     {% if session.is_important %}<i class="fa-solid fa-star" style="color: #f6ad55;"></i>{% else %}<i class="fa-regular fa-star" style="color: #a0aec0;"></i>{% endif %}
                                 </a>
                             </div>
-                            <div class="note-date">{{ session.date.strftime('%b %d, %Y') }}</div>
+                            <div class="note-date">{{ session.start_datetime.strftime('%b %d, %Y') }}</div>
                         </div>
                         
                         {% if session.topic %}
@@ -89,7 +89,7 @@
                         {% endif %}
                         
                         <div class="note-time">
-                            <span><i class="fa-solid fa-clock"></i> {{ session.time_in.strftime('%I:%M %p') }} - {{ session.time_out.strftime('%I:%M %p') }}</span>
+                            <span><i class="fa-solid fa-clock"></i> {{ session.start_datetime.strftime('%I:%M %p') }} - {{ session.end_datetime.strftime('%I:%M %p') }}</span>
                         </div>
                         
                         <div class="note-content">

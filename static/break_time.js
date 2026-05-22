@@ -22,9 +22,13 @@ document.addEventListener("DOMContentLoaded", function () {
     let pauseStartTime = null;
 
     function formatTimeString(dateObj) {
-        return dateObj.getHours().toString().padStart(2, '0') + ':' +
-            dateObj.getMinutes().toString().padStart(2, '0') + ':' +
-            dateObj.getSeconds().toString().padStart(2, '0');
+        const y = dateObj.getFullYear();
+        const m = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+        const d = dateObj.getDate().toString().padStart(2, '0');
+        const H = dateObj.getHours().toString().padStart(2, '0');
+        const M = dateObj.getMinutes().toString().padStart(2, '0');
+        const S = dateObj.getSeconds().toString().padStart(2, '0');
+        return `${y}-${m}-${d} ${H}:${M}:${S}`;
     }
 
     function updateDisplay(diffMs) {
