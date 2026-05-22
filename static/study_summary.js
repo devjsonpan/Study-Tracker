@@ -26,6 +26,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Friends daily grouped bar chart (only if in a group)
     const friendsDailyEl = document.getElementById('friendsDailyChart');
     if (friendsDailyEl) {
+        const friendChartHeight = Math.max(220, friendNames.length * 38 + 60);
+        friendsDailyEl.style.height = friendChartHeight + 'px';
         new Chart(friendsDailyEl, {
             type: 'bar',
             data: {
@@ -48,7 +50,8 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             options: {
                 indexAxis: 'y',
-                responsive: true,
+                responsive: false,
+                maintainAspectRatio: false,
                 plugins: { legend: { position: 'bottom' } },
                 scales: {
                     x: { beginAtZero: true, grid: { color: gridColor }, border: { color: gridColor }, ticks: { callback: v => v + 'h' } },
@@ -56,11 +59,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         });
+        friendsDailyEl.style.width = '100%';
     }
 
     // Friends weekly grouped bar chart (only if in a group)
     const friendsWeeklyEl = document.getElementById('friendsWeeklyChart');
     if (friendsWeeklyEl) {
+        const friendChartHeight = Math.max(220, friendNames.length * 38 + 60);
+        friendsWeeklyEl.style.height = friendChartHeight + 'px';
         new Chart(friendsWeeklyEl, {
             type: 'bar',
             data: {
@@ -83,7 +89,8 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             options: {
                 indexAxis: 'y',
-                responsive: true,
+                responsive: false,
+                maintainAspectRatio: false,
                 plugins: { legend: { position: 'bottom' } },
                 scales: {
                     x: { beginAtZero: true, grid: { color: gridColor }, border: { color: gridColor }, ticks: { callback: v => v + 'h' } },
@@ -91,6 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         });
+        friendsWeeklyEl.style.width = '100%';
     }
 
     // All-time course donut

@@ -379,7 +379,8 @@ body {
     .side-panel .button {
         padding: 8px 12px;
         font-size: 13px;
-        flex: 1 1 auto;
+        flex: 1 1 calc(50% - 5px);
+        max-width: calc(50% - 5px);
         justify-content: center;
     }
 
