@@ -25,6 +25,7 @@
         const todayCourseHours = {{ today_course_hours | tojson }};
         const todayStudyHours = {{ today_study_hours | tojson }};
         const todayBreakHours = {{ today_break_hours | tojson }};
+        const heatmapAllData = {{ heatmap_all_data | tojson }};
     </script>
     <link rel="stylesheet" href="/static/dark_mode.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -189,6 +190,41 @@
                     </div>
                     <div class="chart-wrapper">
                         <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-card heatmap-card" style="margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h3><i class="fa-solid fa-calendar-days"></i> Study Heatmap</h3>
+                        <p class="chart-subtitle" style="margin-bottom: 15px;">Daily study hours</p>
+                    </div>
+                    <div>
+                        <select id="heatmap-year-select" style="padding: 6px 12px; margin: 0; background-color: transparent; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; color: inherit; font-family: inherit;">
+                            <option value="last365">Last 365 Days</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="heatmap-container" class="heatmap-container"></div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; flex-wrap: wrap; gap: 15px;">
+                    <div class="heatmap-stats" style="display: flex; gap: 30px; font-size: 13px; color: #718096;">
+                        <div>
+                            <div id="current-streak" class="stat-value" style="font-size: 18px; font-weight: 700; color: #2d3748; margin-bottom: 2px;">0 days</div>
+                            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Current Streak</div>
+                        </div>
+                        <div>
+                            <div id="longest-streak" class="stat-value" style="font-size: 18px; font-weight: 700; color: #2d3748; margin-bottom: 2px;">0 days</div>
+                            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Longest Streak</div>
+                        </div>
+                    </div>
+                    <div class="heatmap-legend">
+                        <span class="legend-text">Less</span>
+                        <span class="heatmap-cell" data-level="0"></span>
+                        <span class="heatmap-cell" data-level="1"></span>
+                        <span class="heatmap-cell" data-level="2"></span>
+                        <span class="heatmap-cell" data-level="3"></span>
+                        <span class="heatmap-cell" data-level="4"></span>
+                        <span class="legend-text">More</span>
                     </div>
                 </div>
             </div>

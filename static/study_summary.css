@@ -528,6 +528,103 @@ body {
     border: 1px solid #feb2b2;
 }
 
+/* Heatmap Styles */
+.heatmap-card {
+    grid-column: 1 / -1;
+}
+
+.heatmap-container {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 transparent;
+}
+
+.heatmap-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.heatmap-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.heatmap-container::-webkit-scrollbar-thumb {
+    background-color: #cbd5e0;
+    border-radius: 10px;
+}
+
+.heatmap-column {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.heatmap-cell {
+    width: 13px;
+    height: 13px;
+    border-radius: 3px;
+    background-color: #ebedf0;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.1s;
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.1);
+    z-index: 10;
+}
+
+.heatmap-cell[data-level="1"] { background-color: #c3dafe; }
+.heatmap-cell[data-level="2"] { background-color: #7f9cf5; }
+.heatmap-cell[data-level="3"] { background-color: #5a67d8; }
+.heatmap-cell[data-level="4"] { background-color: #434190; }
+
+.heatmap-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 9999;
+    pointer-events: none;
+    font-weight: 600;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    opacity: 0;
+    transition: opacity 0.1s;
+    transform: translate(-50%, -100%);
+    margin-top: -10px;
+}
+
+.heatmap-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.85);
+}
+
+.heatmap-legend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: flex-end;
+    font-size: 13px;
+    color: #718096;
+}
+
+.legend-text {
+    margin: 0 4px;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 900px) {
     body {

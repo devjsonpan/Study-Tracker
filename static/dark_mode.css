@@ -295,3 +295,17 @@ html.dark-theme .side-panel-logo h2 {
 html.dark-theme .side-panel-logo h2 i {
     color: #818cf8 !important;
 }
+
+/* Heatmap Dark Mode */
+html.dark-theme .heatmap-stats .stat-value {
+    color: #f8fafc !important;
+}
+
+html.dark-theme .heatmap-cell {
+    background-color: #334155 !important;
+}
+
+html.dark-theme .heatmap-cell[data-level="1"] { background-color: #312e81 !important; }
+html.dark-theme .heatmap-cell[data-level="2"] { background-color: #4338ca !important; }
+html.dark-theme .heatmap-cell[data-level="3"] { background-color: #6366f1 !important; }
+html.dark-theme .heatmap-cell[data-level="4"] { background-color: #818cf8 !important; }

@@ -1028,6 +1028,23 @@ def study_summary():
         daily_study_values = []
         daily_break_values = []
 
+    # Calculate heatmap data for all time (minimum 365 days)
+    heatmap_all_data = []
+    
+    if first_date:
+        start_date = min(first_date, today - timedelta(days=364))
+    else:
+        start_date = today - timedelta(days=364)
+        
+    total_heatmap_days = (today - start_date).days + 1
+    
+    for i in range(total_heatmap_days):
+        d = start_date + timedelta(days=i)
+        heatmap_all_data.append({
+            'date': d.strftime('%Y-%m-%d'),
+            'hours': round(daily_study.get(d, 0), 2)
+        })
+
     # Today's data for My Stats tab
     today_sessions = StudySession.query.filter_by(username=current_username).filter(
         StudySession.date == today
@@ -1079,6 +1096,8 @@ def study_summary():
         today_course_hours=today_course_hours,
         today_study_hours=today_study_hours,
         today_break_hours=today_break_hours,
+        # Heatmap
+        heatmap_all_data=heatmap_all_data,
     )
 
 # Main block to run the application

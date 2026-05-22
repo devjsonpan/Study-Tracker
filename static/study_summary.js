@@ -276,4 +276,179 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     }
+
+    // Render Heatmap
+    if (typeof heatmapAllData !== 'undefined' && heatmapAllData.length > 0) {
+        const heatmapContainer = document.getElementById('heatmap-container');
+        const yearSelect = document.getElementById('heatmap-year-select');
+        
+        if (heatmapContainer) {
+            let tooltip = document.getElementById('heatmap-tooltip');
+            if (!tooltip) {
+                tooltip = document.createElement('div');
+                tooltip.id = 'heatmap-tooltip';
+                tooltip.className = 'heatmap-tooltip';
+                document.body.appendChild(tooltip);
+            }
+
+            // Extract available years from data
+            const years = new Set();
+            heatmapAllData.forEach(day => {
+                years.add(day.date.substring(0, 4));
+            });
+            const sortedYears = Array.from(years).sort((a, b) => b - a);
+            
+            if (yearSelect) {
+                sortedYears.forEach(year => {
+                    const opt = document.createElement('option');
+                    opt.value = year;
+                    opt.textContent = year;
+                    yearSelect.appendChild(opt);
+                });
+            }
+
+            // Calculate Streaks
+            let currentStreak = 0;
+            let longestStreak = 0;
+            let tempStreak = 0;
+            
+            heatmapAllData.forEach(day => {
+                if (day.hours > 0) {
+                    tempStreak++;
+                    if (tempStreak > longestStreak) {
+                        longestStreak = tempStreak;
+                    }
+                } else {
+                    tempStreak = 0;
+                }
+            });
+            
+            if (heatmapAllData.length > 0) {
+                const todayData = heatmapAllData[heatmapAllData.length - 1];
+                const yesterdayData = heatmapAllData.length > 1 ? heatmapAllData[heatmapAllData.length - 2] : null;
+                
+                if (todayData.hours > 0) {
+                    currentStreak = tempStreak;
+                } else if (yesterdayData && yesterdayData.hours > 0) {
+                    let backTrackStreak = 0;
+                    for (let i = heatmapAllData.length - 2; i >= 0; i--) {
+                        if (heatmapAllData[i].hours > 0) {
+                            backTrackStreak++;
+                        } else {
+                            break;
+                        }
+                    }
+                    currentStreak = backTrackStreak;
+                }
+            }
+            
+            const currentStreakEl = document.getElementById('current-streak');
+            const longestStreakEl = document.getElementById('longest-streak');
+            if (currentStreakEl) currentStreakEl.textContent = currentStreak + (currentStreak === 1 ? ' day' : ' days');
+            if (longestStreakEl) longestStreakEl.textContent = longestStreak + (longestStreak === 1 ? ' day' : ' days');
+
+            function renderHeatmapView(viewType) {
+                heatmapContainer.innerHTML = '';
+                
+                let viewData = [];
+                if (viewType === 'last365') {
+                    viewData = heatmapAllData.slice(-365);
+                } else {
+                    const dataMap = new Map();
+                    heatmapAllData.forEach(d => dataMap.set(d.date, d));
+                    
+                    const yearStart = new Date(viewType, 0, 1);
+                    const isLeap = new Date(viewType, 1, 29).getMonth() === 1;
+                    const daysInYear = isLeap ? 366 : 365;
+                    
+                    for(let i=0; i<daysInYear; i++) {
+                        const d = new Date(yearStart.getTime() + i*24*60*60*1000);
+                        const y = d.getFullYear();
+                        const m = String(d.getMonth()+1).padStart(2, '0');
+                        const day = String(d.getDate()).padStart(2, '0');
+                        const dateStr = `${y}-${m}-${day}`;
+                        
+                        viewData.push(dataMap.has(dateStr) ? dataMap.get(dateStr) : { date: dateStr, hours: 0 });
+                    }
+                }
+                
+                const weeks = [];
+                let currentWeek = [];
+                
+                const firstDateStr = viewData[0].date;
+                const parts = firstDateStr.split('-');
+                const firstDateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+                const firstDayOfWeek = firstDateObj.getDay(); 
+                
+                for (let i = 0; i < firstDayOfWeek; i++) {
+                    currentWeek.push(null);
+                }
+                
+                viewData.forEach(day => {
+                    currentWeek.push(day);
+                    if (currentWeek.length === 7) {
+                        weeks.push(currentWeek);
+                        currentWeek = [];
+                    }
+                });
+                if (currentWeek.length > 0) {
+                    while(currentWeek.length < 7) currentWeek.push(null);
+                    weeks.push(currentWeek);
+                }
+                
+                weeks.forEach(week => {
+                    const col = document.createElement('div');
+                    col.className = 'heatmap-column';
+                    week.forEach(day => {
+                        const cell = document.createElement('div');
+                        cell.className = 'heatmap-cell';
+                        if (day) {
+                            let level = 0;
+                            if (day.hours > 0 && day.hours <= 1) level = 1;
+                            else if (day.hours > 1 && day.hours <= 3) level = 2;
+                            else if (day.hours > 3 && day.hours <= 5) level = 3;
+                            else if (day.hours > 5) level = 4;
+                            
+                            cell.setAttribute('data-level', level);
+                            
+                            const dParts = day.date.split('-');
+                            const dateObj = new Date(dParts[0], dParts[1]-1, dParts[2]);
+                            const dateString = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                            const tooltipText = `${day.hours}h on ${dateString}`;
+                            
+                            cell.addEventListener('mouseenter', () => {
+                                tooltip.innerHTML = tooltipText;
+                                tooltip.style.opacity = '1';
+                            });
+                            
+                            cell.addEventListener('mousemove', (e) => {
+                                tooltip.style.left = e.pageX + 'px';
+                                tooltip.style.top = e.pageY + 'px';
+                            });
+                            
+                            cell.addEventListener('mouseleave', () => {
+                                tooltip.style.opacity = '0';
+                            });
+                        } else {
+                            cell.style.visibility = 'hidden';
+                        }
+                        col.appendChild(cell);
+                    });
+                    heatmapContainer.appendChild(col);
+                });
+                
+                setTimeout(() => {
+                    heatmapContainer.scrollLeft = heatmapContainer.scrollWidth;
+                }, 50);
+            }
+            
+            renderHeatmapView('last365');
+            
+            if (yearSelect) {
+                yearSelect.addEventListener('change', (e) => {
+                    renderHeatmapView(e.target.value);
+                });
+            }
+        }
+    }
 });
