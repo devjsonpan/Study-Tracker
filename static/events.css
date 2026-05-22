@@ -595,28 +595,44 @@ textarea {
         overflow-y: auto;
     }
 
-    .side-panel {
-        position: static;
+        .side-panel {
         width: 100%;
         height: auto;
-        padding: 15px;
+        position: relative;
         flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        align-items: center;
+        padding: 10px 15px;
         box-sizing: border-box;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        justify-content: flex-start;
+    }
+    .side-panel::-webkit-scrollbar {
+        display: none; /* Chrome/Safari */
     }
 
     .side-panel-logo {
-        width: 100%;
-        margin-bottom: 5px;
-        padding-bottom: 10px;
+        width: auto;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        margin-right: 15px;
+        flex-shrink: 0;
+        border-bottom: none;
+    }
+    .side-panel-logo h2 {
+        font-size: 18px;
+        margin: 0;
     }
 
     .side-panel .button {
-        padding: 8px 12px;
+        padding: 8px 14px;
         font-size: 13px;
-        flex: 1 1 calc(50% - 5px);
-        max-width: calc(50% - 5px);
+        flex: 0 0 auto;
+        max-width: none;
+        white-space: nowrap;
+        margin: 0 5px 0 0;
         justify-content: center;
     }
 

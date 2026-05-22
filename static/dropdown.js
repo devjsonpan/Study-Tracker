@@ -42,3 +42,21 @@ window.onclick = function(event) {
     }
   }
 }
+
+// Mobile Nav Auto-Scroll
+document.addEventListener("DOMContentLoaded", function () {
+    // Current page button always has href="#"
+    const activeBtn = document.querySelector('.side-panel a.button[href="#"]');
+    if (!activeBtn) return;
+
+    // Highlight active tab visually
+    activeBtn.style.backgroundColor = 'rgba(102, 126, 234, 0.3)';
+    activeBtn.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.3)';
+    activeBtn.style.color = 'white';
+
+    const sidePanel = document.querySelector('.side-panel');
+    if (window.innerWidth <= 900 && sidePanel) {
+        // Center the active button in the scrollable nav
+        sidePanel.scrollLeft = activeBtn.offsetLeft - (sidePanel.offsetWidth / 2) + (activeBtn.offsetWidth / 2);
+    }
+});
