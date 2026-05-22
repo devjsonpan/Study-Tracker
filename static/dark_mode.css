@@ -143,18 +143,20 @@ html.dark-theme .timer-status {
 }
 
 /* Subtle backgrounds for dates/meta */
-html.dark-theme .event-dates,
-html.dark-theme .event-meta {
-    background-color: transparent !important;
-    color: #cbd5e1 !important;
+html.dark-theme .event-date-part,
+html.dark-theme .task-date-part {
+    color: #e2e8f0 !important;
+}
+
+html.dark-theme .event-time-part,
+html.dark-theme .task-time-part,
+html.dark-theme .event-meta,
+html.dark-theme .task-description {
+    color: #94a3b8 !important;
 }
 
 html.dark-theme .note-date {
     background-color: #334155 !important;
-    color: #cbd5e1 !important;
-}
-
-html.dark-theme .task-due {
     color: #cbd5e1 !important;
 }
 
@@ -267,4 +269,29 @@ html.dark-theme .fc-theme-standard .fc-scrollgrid {
 
 html.dark-theme .fc-day-today {
     background-color: #334155 !important;
+}
+
+/* FA icon accent color — must target <i> directly so it overrides inherited white from heading rules */
+html.dark-theme h1 i,
+html.dark-theme h2 i,
+html.dark-theme h3 i,
+html.dark-theme .guide-icon i {
+    color: #818cf8 !important;
+}
+
+html.dark-theme .side-panel .button i {
+    color: #818cf8 !important;
+}
+
+html.dark-theme .side-panel .button:hover i {
+    color: #fbbf24 !important;
+}
+
+/* Pin logo color so it never inherits hover state from sibling buttons */
+html.dark-theme .side-panel-logo h2 {
+    color: #818cf8 !important;
+}
+
+html.dark-theme .side-panel-logo h2 i {
+    color: #818cf8 !important;
 }

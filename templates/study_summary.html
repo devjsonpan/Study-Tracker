@@ -27,21 +27,22 @@
         const todayBreakHours = {{ today_break_hours | tojson }};
     </script>
     <link rel="stylesheet" href="/static/dark_mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
     <div class="side-panel">
         <div class="side-panel-logo">
-            <h2>📚 Study Tracker</h2>
+            <h2><i class="fa-solid fa-graduation-cap"></i> Study Tracker</h2>
         </div>
-        <a href="{{url_for('home')}}" class="button">Home</a>
-        <a href="{{url_for('study_session')}}" class="button">Study Session</a>
-        <a href="{{url_for('notes')}}" class="button">Notes</a>
-        <a href="{{url_for('homework')}}" class="button">Homework Tasks</a>
-        <a href="{{url_for('events')}}" class="button">Events</a>
-        <a href="{{url_for('calendar_view')}}" class="button">Calendar</a>
-        <a href="{{url_for('break_time')}}" class="button">Break Time</a>
-        <a href="#" class="button studysummary">Study Summary</a>
+        <a href="{{url_for('home')}}" class="button"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="{{url_for('study_session')}}" class="button"><i class="fa-solid fa-book-open"></i> Study Session</a>
+        <a href="{{url_for('notes')}}" class="button"><i class="fa-solid fa-note-sticky"></i> Notes</a>
+        <a href="{{url_for('homework')}}" class="button"><i class="fa-solid fa-list-check"></i> Homework Tasks</a>
+        <a href="{{url_for('events')}}" class="button"><i class="fa-solid fa-calendar-check"></i> Events</a>
+        <a href="{{url_for('calendar_view')}}" class="button"><i class="fa-solid fa-calendar-days"></i> Calendar</a>
+        <a href="{{url_for('break_time')}}" class="button"><i class="fa-solid fa-mug-hot"></i> Break Time</a>
+        <a href="#" class="button studysummary"><i class="fa-solid fa-chart-bar"></i> Study Summary</a>
     </div>
 
     <div class="main-content">
@@ -54,7 +55,7 @@
         </div>
 
         <div class="summary-header">
-            <h1>📊 Study Summary</h1>
+            <h1><i class="fa-solid fa-chart-bar"></i> Study Summary</h1>
             <p>{{ current_date.strftime('%B %d, %Y') }}</p>
         </div>
 
@@ -72,8 +73,8 @@
         <!-- Tabs -->
         <div class="tabs-container">
             <div class="tabs">
-                <button class="tab active" onclick="switchTab('friends')">👥 Friends</button>
-                <button class="tab" onclick="switchTab('mystats')">📈 My Stats</button>
+                <button class="tab active" onclick="switchTab('friends')"><i class="fa-solid fa-users"></i> Friends</button>
+                <button class="tab" onclick="switchTab('mystats')"><i class="fa-solid fa-chart-line"></i> My Stats</button>
             </div>
         </div>
 
@@ -91,14 +92,14 @@
             </div>
             <div class="charts-grid">
                 <div class="chart-card">
-                    <h3>📊 Today's Activity</h3>
+                    <h3><i class="fa-solid fa-chart-bar"></i> Today's Activity</h3>
                     <p class="chart-subtitle">Study vs break hours logged today</p>
                     <div class="chart-wrapper">
                         <canvas id="friendsDailyChart"></canvas>
                     </div>
                 </div>
                 <div class="chart-card">
-                    <h3>📅 Weekly Activity</h3>
+                    <h3><i class="fa-solid fa-calendar-week"></i> Weekly Activity</h3>
                     <p class="chart-subtitle">Study vs break hours logged this week</p>
                     <div class="chart-wrapper">
                         <canvas id="friendsWeeklyChart"></canvas>
@@ -107,12 +108,12 @@
             </div>
 
             <div class="leaderboard-card">
-                <h3>🏆 Weekly Leaderboard</h3>
+                <h3><i class="fa-solid fa-trophy"></i> Weekly Leaderboard</h3>
                 <div class="leaderboard">
                     {% for i in range(friend_names|length) %}
                     <div class="leaderboard-row {% if friend_names[i] == current_fullname %}is-you{% endif %}">
                         <div class="rank">
-                            {% if i == 0 %}🥇{% elif i == 1 %}🥈{% elif i == 2 %}🥉{% else %}<span class="rank-badge">{{ i+1 }}</span>{% endif %}
+                            {% if i == 0 %}<i class="fa-solid fa-medal" style="color: #FFD700; font-size: 20px;"></i>{% elif i == 1 %}<i class="fa-solid fa-medal" style="color: #C0C0C0; font-size: 20px;"></i>{% elif i == 2 %}<i class="fa-solid fa-medal" style="color: #CD7F32; font-size: 20px;"></i>{% else %}<span class="rank-badge">{{ i+1 }}</span>{% endif %}
                         </div>
                         <div class="lb-name">
                             {{ friend_names[i] }}
@@ -126,7 +127,7 @@
             </div>
             {% else %}
             <div class="empty-state">
-                <div class="empty-icon">🌎</div>
+                <div class="empty-icon"><i class="fa-solid fa-earth-americas"></i></div>
                 <h3>Join a Study Group</h3>
                 <p>You are not in a study group yet. Join one to compare stats with your friends!</p>
                 
@@ -156,14 +157,14 @@
             {% if course_labels %}
             <div class="charts-grid">
                 <div class="chart-card">
-                    <h3>📚 Course Breakdown (All-Time)</h3>
+                    <h3><i class="fa-solid fa-book"></i> Course Breakdown (All-Time)</h3>
                     <p class="chart-subtitle">Total hours per subject</p>
                     <div class="chart-wrapper chart-wrapper--donut">
                         <canvas id="courseChart"></canvas>
                     </div>
                 </div>
                 <div class="chart-card">
-                    <h3>📚 Course Breakdown (Today)</h3>
+                    <h3><i class="fa-solid fa-book"></i> Course Breakdown (Today)</h3>
                     <p class="chart-subtitle">Hours per subject today</p>
                     <div class="chart-wrapper chart-wrapper--donut">
                         <canvas id="todayCourseChart"></canvas>
@@ -172,14 +173,14 @@
             </div>
             <div class="charts-grid">
                 <div class="chart-card">
-                    <h3>📅 Today's Activity</h3>
+                    <h3><i class="fa-solid fa-chart-simple"></i> Today's Activity</h3>
                     <p class="chart-subtitle">Study vs break hours today</p>
                     <div class="chart-wrapper">
                         <canvas id="todayBarChart"></canvas>
                     </div>
                 </div>
                 <div class="chart-card">
-                    <h3>📈 Trend Over Time</h3>
+                    <h3><i class="fa-solid fa-chart-line"></i> Trend Over Time</h3>
                     <p class="chart-subtitle">All-time study vs break hours</p>
                     <div class="trend-controls">
                         <button id="trendPrev" type="button" class="trend-nav" disabled aria-label="View earlier dates">←</button>
@@ -193,7 +194,7 @@
             </div>
             {% else %}
             <div class="empty-state">
-                <div class="empty-icon">📭</div>
+                <div class="empty-icon"><i class="fa-solid fa-inbox"></i></div>
                 <h3>No data yet!</h3>
                 <p>Log some study sessions to see your personal stats here.</p>
                 <a href="{{ url_for('study_session') }}" class="add-session-button">Log a Session</a>

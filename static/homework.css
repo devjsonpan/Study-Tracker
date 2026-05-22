@@ -22,7 +22,7 @@ body {
 }
 
 .side-panel-logo {
-    color: white;
+    color: #667eea;
     font-size: 16px;
     font-weight: bold;
     text-align: center;
@@ -41,7 +41,7 @@ body {
 .side-panel .button {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
     padding: 14px 20px;
     text-decoration: none;
     color: #e2e8f0;
@@ -67,37 +67,16 @@ body {
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
-/* Add icons to sidebar buttons */
-.side-panel>.button:nth-child(2)::before {
-    content: "🏠";
+.side-panel .button i {
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+    color: #667eea;
+    transition: color 0.3s ease;
 }
 
-.side-panel>.button:nth-child(3)::before {
-    content: "📖";
-}
-
-.side-panel>.button:nth-child(4)::before {
-    content: "📝";
-}
-
-.side-panel>.button:nth-child(5)::before {
-    content: "✅";
-}
-
-.side-panel>.button:nth-child(6)::before {
-    content: "📌";
-}
-
-.side-panel>.button:nth-child(7)::before {
-    content: "📆";
-}
-
-.side-panel>.button:nth-child(8)::before {
-    content: "🎮";
-}
-
-.side-panel>.button:nth-child(9)::before {
-    content: "📊";
+.side-panel .button:hover i {
+    color: #fbbf24;
 }
 
 .homework-form {
@@ -110,10 +89,16 @@ body {
 }
 
 .homework-form h1 {
-    color: #667eea;
+    color: #2d3748;
     margin-top: 0;
     margin-bottom: 30px;
     text-align: center;
+}
+
+.homework-form h1 i,
+.homework-list h2 i {
+    color: #667eea;
+    margin-right: 8px;
 }
 
 .form-group {
@@ -156,6 +141,8 @@ textarea:focus {
     margin-top: 4px;
     padding-top: 5px;
     max-width: 600px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 input,
@@ -186,7 +173,7 @@ select:focus {
 }
 
 .homework-list h2 {
-    color: #667eea;
+    color: #2d3748;
     margin: 0;
 }
 
@@ -201,9 +188,10 @@ select:focus {
     display: flex;
     align-items: center;
     gap: 15px;
-    background: #a8b8f8;
+    background: white;
     padding: 8px 12px;
     border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .search-container {
@@ -215,27 +203,21 @@ select:focus {
 .search-icon {
     width: 18px;
     height: 18px;
-    color: white;
+    color: #718096;
     opacity: 0.9;
     flex-shrink: 0;
 }
 
 .search-bar {
-    background: white;
+    background: transparent;
     color: #2d3748;
-    border: 1px solid #e2e8f0;
+    border: solid 1px #cbd5e1;
     padding: 6px 10px;
     border-radius: 6px;
     font-size: 13px;
     font-weight: 500;
     outline: none;
     transition: all 0.3s ease;
-}
-
-.search-bar:hover,
-.search-bar:focus {
-    border-color: #667eea;
-    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.1);
 }
 
 .sort-controls {
@@ -253,9 +235,9 @@ select:focus {
 }
 
 .filter-container select {
-    background: white;
+    background: transparent;
     color: #2d3748;
-    border: 1px solid #e2e8f0;
+    border: solid 1px #cbd5e1;
     padding: 6px 10px;
     border-radius: 6px;
     font-size: 13px;
@@ -264,10 +246,6 @@ select:focus {
     outline: none;
     transition: all 0.3s ease;
     width: auto;
-}
-
-.filter-container select:hover {
-    border-color: #667eea;
 }
 
 .star-toggle {
@@ -327,14 +305,74 @@ select:focus {
     text-decoration: line-through;
 }
 
-.task-due {
-    color: #718096;
-    font-size: 14px;
+.task-dates {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 6px;
 }
 
-.task-due.overdue {
-    color: #e53e3e;
+.task-date-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.task-date-part {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #4a5568;
+    font-size: 14px;
     font-weight: 600;
+}
+
+.task-time-row {
+    display: flex;
+    align-items: center;
+}
+
+.task-time-part {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #718096;
+    font-size: 13px;
+}
+
+.task-date-part i,
+.task-time-part i {
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.status-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.past-badge {
+    background: #fff5f5;
+    color: #c53030;
+    border: 1px solid #feb2b2;
+}
+
+.occurring-badge {
+    background: #f0fff4;
+    color: #276749;
+    border: 1px solid #9ae6b4;
+}
+
+.future-badge {
+    background: #ebf4ff;
+    color: #2b6cb0;
+    border: 1px solid #bee3f8;
 }
 
 .task-actions {

@@ -10,21 +10,22 @@
     <script>window.USERNAME = "{{ session.get('username', '') }}";</script>
     <script src="/static/dropdown.js"></script>
     <link rel="stylesheet" href="/static/dark_mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
     <div class="side-panel">
         <div class="side-panel-logo">
-            <h2>📚 Study Tracker</h2>
+            <h2><i class="fa-solid fa-graduation-cap"></i> Study Tracker</h2>
         </div>
-        <a href="{{url_for('home')}}" class="button">Home</a>
-        <a href="{{url_for('study_session')}}" class="button">Study Session</a>
-        <a href="#" class="button notes">Notes</a>
-        <a href="{{url_for('homework')}}" class="button">Homework Tasks</a>
-        <a href="{{url_for('events')}}" class="button">Events</a>
-        <a href="{{url_for('calendar_view')}}" class="button">Calendar</a>
-        <a href="{{url_for('break_time')}}" class="button">Break Time</a>
-        <a href="{{url_for('study_summary')}}" class="button">Study Summary</a>
+        <a href="{{url_for('home')}}" class="button"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="{{url_for('study_session')}}" class="button"><i class="fa-solid fa-book-open"></i> Study Session</a>
+        <a href="#" class="button notes"><i class="fa-solid fa-note-sticky"></i> Notes</a>
+        <a href="{{url_for('homework')}}" class="button"><i class="fa-solid fa-list-check"></i> Homework Tasks</a>
+        <a href="{{url_for('events')}}" class="button"><i class="fa-solid fa-calendar-check"></i> Events</a>
+        <a href="{{url_for('calendar_view')}}" class="button"><i class="fa-solid fa-calendar-days"></i> Calendar</a>
+        <a href="{{url_for('break_time')}}" class="button"><i class="fa-solid fa-mug-hot"></i> Break Time</a>
+        <a href="{{url_for('study_summary')}}" class="button"><i class="fa-solid fa-chart-bar"></i> Study Summary</a>
     </div>
 
     <div class="main-content">
@@ -45,7 +46,7 @@
                     </svg>
                     <input type="text" id="search-notes" placeholder="Search notes..." class="search-bar" onkeyup="filterNotes()">
                 </div>
-                <h1>📝 Study Notes</h1>
+                <h1><i class="fa-solid fa-note-sticky"></i> Study Notes</h1>
                 <div class="filter-container">
                     <label for="sort-notes">Sort by:</label>
                     <select id="sort-notes" onchange="window.location.href='?sort=' + this.value">
@@ -75,7 +76,7 @@
                             <div class="note-course">
                                 {{ session.course }}
                                 <a href="{{ url_for('toggle_note_importance', session_id=session.id) }}" class="star-toggle" style="text-decoration: none; color: inherit; margin-left: 5px;">
-                                    {% if session.is_important %}⭐{% else %}☆{% endif %}
+                                    {% if session.is_important %}<i class="fa-solid fa-star" style="color: #f6ad55;"></i>{% else %}<i class="fa-regular fa-star" style="color: #a0aec0;"></i>{% endif %}
                                 </a>
                             </div>
                             <div class="note-date">{{ session.date.strftime('%b %d, %Y') }}</div>
@@ -88,7 +89,7 @@
                         {% endif %}
                         
                         <div class="note-time">
-                            <span>🕐 {{ session.time_in.strftime('%I:%M %p') }} - {{ session.time_out.strftime('%I:%M %p') }}</span>
+                            <span><i class="fa-solid fa-clock"></i> {{ session.time_in.strftime('%I:%M %p') }} - {{ session.time_out.strftime('%I:%M %p') }}</span>
                         </div>
                         
                         <div class="note-content">
@@ -96,15 +97,15 @@
                         </div>
                         
                         <div class="note-actions">
-                            <button class="edit-btn" onclick="editNote({{ session.id }})">✏️ Edit</button>
-                            <button class="delete-btn" onclick="deleteNote({{ session.id }})">🗑️ Delete</button>
+                            <button class="edit-btn" onclick="editNote({{ session.id }})"><i class="fa-solid fa-pen"></i> Edit</button>
+                            <button class="delete-btn" onclick="deleteNote({{ session.id }})"><i class="fa-solid fa-trash"></i> Delete</button>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
             {% else %}
                 <div class="no-notes">
-                    <div class="no-notes-icon">📝</div>
+                    <div class="no-notes-icon"><i class="fa-solid fa-note-sticky"></i></div>
                     <h2>No study notes yet!</h2>
                     <p>Add notes to your study sessions to see them here.</p>
                     <a href="{{ url_for('study_session') }}" class="add-session-button">Log a Study Session</a>

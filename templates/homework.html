@@ -10,21 +10,22 @@
     <script>window.USERNAME = "{{ session.get('username', '') }}";</script>
     <script src="/static/dropdown.js"></script>
     <link rel="stylesheet" href="/static/dark_mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
     <div class="side-panel">
         <div class="side-panel-logo">
-            <h2>📚 Study Tracker</h2>
+            <h2><i class="fa-solid fa-graduation-cap"></i> Study Tracker</h2>
         </div>
-        <a href="{{url_for('home')}}" class="button">Home</a>
-        <a href="{{url_for('study_session')}}" class="button">Study Session</a>
-        <a href="{{url_for('notes')}}" class="button">Notes</a>
-        <a href="#" class="button homework">Homework Tasks</a>
-        <a href="{{url_for('events')}}" class="button">Events</a>
-        <a href="{{url_for('calendar_view')}}" class="button">Calendar</a>
-        <a href="{{url_for('break_time')}}" class="button">Break Time</a>
-        <a href="{{url_for('study_summary')}}" class="button">Study Summary</a>
+        <a href="{{url_for('home')}}" class="button"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="{{url_for('study_session')}}" class="button"><i class="fa-solid fa-book-open"></i> Study Session</a>
+        <a href="{{url_for('notes')}}" class="button"><i class="fa-solid fa-note-sticky"></i> Notes</a>
+        <a href="#" class="button homework"><i class="fa-solid fa-list-check"></i> Homework Tasks</a>
+        <a href="{{url_for('events')}}" class="button"><i class="fa-solid fa-calendar-check"></i> Events</a>
+        <a href="{{url_for('calendar_view')}}" class="button"><i class="fa-solid fa-calendar-days"></i> Calendar</a>
+        <a href="{{url_for('break_time')}}" class="button"><i class="fa-solid fa-mug-hot"></i> Break Time</a>
+        <a href="{{url_for('study_summary')}}" class="button"><i class="fa-solid fa-chart-bar"></i> Study Summary</a>
     </div>
 
     <div class="main-content">
@@ -37,7 +38,7 @@
         </div>
 
         <form class="homework-form" method="POST" action="{{ url_for('save_homework') }}">
-            <h1>✅ Add Homework Task</h1>
+            <h1><i class="fa-solid fa-list-check"></i> Add Homework Task</h1>
                 
             <div class="form-group">
                 <label for="course">Course:</label>
@@ -64,7 +65,7 @@
 
         <div class="homework-list">
             <div class="homework-header-container">
-                <h2>📋 Your Homework Tasks</h2>
+                <h2><i class="fa-solid fa-clipboard-list"></i> Your Homework Tasks</h2>
                 <div class="filter-container">
                     <div class="search-container">
                         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -102,14 +103,29 @@
                         <div class="task-name {% if task.is_completed %}completed{% endif %}">
                             {{ task.task_name }}
                             <a href="{{ url_for('toggle_task_importance', task_id=task.id) }}" class="star-toggle" style="text-decoration: none; color: inherit; margin-left: 5px;">
-                                {% if task.is_important %}⭐{% else %}☆{% endif %}
+                                {% if task.is_important %}<i class="fa-solid fa-star" style="color: #f6ad55;"></i>{% else %}<i class="fa-regular fa-star" style="color: #a0aec0;"></i>{% endif %}
                             </a>
                         </div>
-                        <div class="task-due {% if task.due_date < now and not task.is_completed %}overdue{% endif %}">
-                            Due: {{ task.due_date.strftime('%B %d, %Y at %I:%M %p') }}
-                            {% if task.due_date < now and not task.is_completed %}
-                                (OVERDUE!)
-                            {% endif %}
+                        <div class="task-dates">
+                            <div class="task-date-row">
+                                <span class="task-date-part">
+                                    <i class="fa-solid fa-calendar-day"></i>
+                                    {{ task.due_date.strftime('%b %d, %Y') }}
+                                </span>
+                                {% if task.due_date < now and not task.is_completed %}
+                                    <span class="status-badge past-badge">OVERDUE</span>
+                                {% elif task.due_date.date() == now.date() and not task.is_completed %}
+                                    <span class="status-badge occurring-badge">DUE TODAY</span>
+                                {% elif task.due_date > now and not task.is_completed %}
+                                    <span class="status-badge future-badge">UPCOMING</span>
+                                {% endif %}
+                            </div>
+                            <div class="task-time-row">
+                                <span class="task-time-part">
+                                    <i class="fa-solid fa-clock"></i>
+                                    {{ task.due_date.strftime('%I:%M %p') }}
+                                </span>
+                            </div>
                         </div>
                         {% if task.description %}
                             <div class="task-description">{{ task.description }}</div>

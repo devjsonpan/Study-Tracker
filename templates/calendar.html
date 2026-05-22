@@ -15,21 +15,22 @@
         const calendarEvents = {{ calendar_events | tojson }};
     </script>
     <link rel="stylesheet" href="/static/dark_mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
     <div class="side-panel">
         <div class="side-panel-logo">
-            <h2>📚 Study Tracker</h2>
+            <h2><i class="fa-solid fa-graduation-cap"></i> Study Tracker</h2>
         </div>
-        <a href="{{url_for('home')}}" class="button">Home</a>
-        <a href="{{url_for('study_session')}}" class="button">Study Session</a>
-        <a href="{{url_for('notes')}}" class="button">Notes</a>
-        <a href="{{url_for('homework')}}" class="button">Homework Tasks</a>
-        <a href="{{url_for('events')}}" class="button">Events</a>
-        <a href="#" class="button calendar">Calendar</a>
-        <a href="{{url_for('break_time')}}" class="button">Break Time</a>
-        <a href="{{url_for('study_summary')}}" class="button">Study Summary</a>
+        <a href="{{url_for('home')}}" class="button"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="{{url_for('study_session')}}" class="button"><i class="fa-solid fa-book-open"></i> Study Session</a>
+        <a href="{{url_for('notes')}}" class="button"><i class="fa-solid fa-note-sticky"></i> Notes</a>
+        <a href="{{url_for('homework')}}" class="button"><i class="fa-solid fa-list-check"></i> Homework Tasks</a>
+        <a href="{{url_for('events')}}" class="button"><i class="fa-solid fa-calendar-check"></i> Events</a>
+        <a href="#" class="button calendar"><i class="fa-solid fa-calendar-days"></i> Calendar</a>
+        <a href="{{url_for('break_time')}}" class="button"><i class="fa-solid fa-mug-hot"></i> Break Time</a>
+        <a href="{{url_for('study_summary')}}" class="button"><i class="fa-solid fa-chart-bar"></i> Study Summary</a>
     </div>
 
     <div class="main-content">
@@ -43,7 +44,7 @@
 
         <div class="calendar-container">
             <div class="calendar-header">
-                <h1>📆 Personal Calendar</h1>
+                <h1><i class="fa-solid fa-calendar-days"></i> Personal Calendar</h1>
                 <p>A visual overview of all your upcoming events and deadlines.</p>
                 <div class="legend">
                     <span class="legend-item"><span class="color-box event-active"></span> Active Event</span>
@@ -57,7 +58,7 @@
             <div id="calendar"></div>
             
             <div class="instruction-box">
-                <p>🚨 NOTE: You can't modify items here. Head over to <b>Events</b> or <b>Homework Tasks</b> to make changes!</p>
+                <p><i class="fa-solid fa-triangle-exclamation"></i> NOTE: You can't modify items here. Head over to <b>Events</b> or <b>Homework Tasks</b> to make changes!</p>
             </div>
 
             <div id="event-modal" style="display:none;">

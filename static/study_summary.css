@@ -22,7 +22,7 @@ body {
 }
 
 .side-panel-logo {
-    color: white;
+    color: #667eea;
     font-size: 16px;
     font-weight: bold;
     text-align: center;
@@ -41,7 +41,7 @@ body {
 .side-panel .button {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
     padding: 14px 20px;
     text-decoration: none;
     color: #e2e8f0;
@@ -66,36 +66,16 @@ body {
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
-.side-panel>.button:nth-child(2)::before {
-    content: "🏠";
+.side-panel .button i {
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+    color: #667eea;
+    transition: color 0.3s ease;
 }
 
-.side-panel>.button:nth-child(3)::before {
-    content: "📖";
-}
-
-.side-panel>.button:nth-child(4)::before {
-    content: "📝";
-}
-
-.side-panel>.button:nth-child(5)::before {
-    content: "✅";
-}
-
-.side-panel>.button:nth-child(6)::before {
-    content: "📌";
-}
-
-.side-panel>.button:nth-child(7)::before {
-    content: "📆";
-}
-
-.side-panel>.button:nth-child(8)::before {
-    content: "🎮";
-}
-
-.side-panel>.button:nth-child(9)::before {
-    content: "📊";
+.side-panel .button:hover i {
+    color: #fbbf24;
 }
 
 .logout-button {
@@ -123,8 +103,12 @@ body {
 .summary-header {
     text-align: center;
     margin-top: 100px;
-    margin-left: 80px;
     padding: 10px 20px 0;
+}
+
+.summary-header h1 i {
+    color: #667eea;
+    margin-right: 8px;
 }
 
 .summary-header h1 {
@@ -148,7 +132,7 @@ body {
 
 .tabs {
     display: flex;
-    gap: 10px;
+    gap: 16px;
     background: rgba(255, 255, 255, 0.1);
     padding: 6px;
     border-radius: 12px;
@@ -165,6 +149,9 @@ body {
     transition: all 0.2s ease;
     background: transparent;
     color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .tab.active {
@@ -209,6 +196,10 @@ body {
     color: #2d3748;
     margin: 0 0 4px;
     font-size: 18px;
+}
+
+.chart-card h3 i {
+    color: #667eea;
 }
 
 .chart-subtitle {
@@ -276,6 +267,10 @@ body {
     color: #2d3748;
     margin: 0 0 20px;
     font-size: 18px;
+}
+
+.leaderboard-card h3 i {
+    color: #667eea;
 }
 
 .leaderboard {

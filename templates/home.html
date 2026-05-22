@@ -9,21 +9,22 @@
     <script>window.USERNAME = "{{ session.get('username', '') }}";</script>
     <script src="/static/dropdown.js"></script>
     <link rel="stylesheet" href="/static/dark_mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
     <div class="side-panel">
         <div class="side-panel-logo">
-            <h2>📚 Study Tracker</h2>
+            <h2><i class="fa-solid fa-graduation-cap"></i> Study Tracker</h2>
         </div>
-        <a href="#" class="button home">Home</a>
-        <a href="{{url_for('study_session')}}" class="button">Study Session</a>
-        <a href="{{url_for('notes')}}" class="button">Notes</a>
-        <a href="{{url_for('homework')}}" class="button">Homework Tasks</a>
-        <a href="{{url_for('events')}}" class="button">Events</a>
-        <a href="{{url_for('calendar_view')}}" class="button">Calendar</a>
-        <a href="{{url_for('break_time')}}" class="button">Break Time</a>
-        <a href="{{url_for('study_summary')}}" class="button">Study Summary</a>
+        <a href="#" class="button home"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="{{url_for('study_session')}}" class="button"><i class="fa-solid fa-book-open"></i> Study Session</a>
+        <a href="{{url_for('notes')}}" class="button"><i class="fa-solid fa-note-sticky"></i> Notes</a>
+        <a href="{{url_for('homework')}}" class="button"><i class="fa-solid fa-list-check"></i> Homework Tasks</a>
+        <a href="{{url_for('events')}}" class="button"><i class="fa-solid fa-calendar-check"></i> Events</a>
+        <a href="{{url_for('calendar_view')}}" class="button"><i class="fa-solid fa-calendar-days"></i> Calendar</a>
+        <a href="{{url_for('break_time')}}" class="button"><i class="fa-solid fa-mug-hot"></i> Break Time</a>
+        <a href="{{url_for('study_summary')}}" class="button"><i class="fa-solid fa-chart-bar"></i> Study Summary</a>
     </div>
 
     <div class="main-content">
@@ -46,7 +47,7 @@
         <div class="guide-grid">
             <a href="{{ url_for('home') }}" class="guide-card-link">
                 <div class="guide-card">
-                    <div class="guide-icon">🏠</div>
+                    <div class="guide-icon"><i class="fa-solid fa-house"></i></div>
                     <div class="guide-body">
                         <h3>Home</h3>
                         <p>You're here! Come back anytime you want to get a refresher on what each page has to offer.</p>
@@ -55,7 +56,7 @@
             </a>   
             <a href="{{ url_for('study_session') }}" class="guide-card-link">
                 <div class="guide-card">
-                    <div class="guide-icon">📖</div>
+                    <div class="guide-icon"><i class="fa-solid fa-book-open"></i></div>
                     <div class="guide-body">
                         <h3>Study Session</h3>
                         <p>Start a live timer to log your studying down to the second. Assign a course, topic, and personal notes to keep your sessions organized.</p>
@@ -64,7 +65,7 @@
             </a>
             <a href="{{ url_for('notes') }}" class="guide-card-link">
                 <div class="guide-card">
-                    <div class="guide-icon">📝</div>
+                    <div class="guide-icon"><i class="fa-solid fa-note-sticky"></i></div>
                     <div class="guide-body">
                         <h3>Notes</h3>
                         <p>Every note you write during a study session is saved here. Browse, edit, or delete them whenever you need to revisit what you've covered.</p>
@@ -73,7 +74,7 @@
             </a>
             <a href="{{ url_for('homework') }}" class="guide-card-link">
                 <div class="guide-card">
-                    <div class="guide-icon">✅</div>
+                    <div class="guide-icon"><i class="fa-solid fa-list-check"></i></div>
                     <div class="guide-body">
                         <h3>Homework Tasks</h3>
                         <p>Stay on top of your assignments by logging tasks with due dates and descriptions. Completed tasks can be marked off, and overdue ones are flagged automatically.</p>
@@ -82,7 +83,7 @@
             </a>
             <a href="{{ url_for('events') }}" class="guide-card-link">
                 <div class="guide-card">
-                    <div class="guide-icon">📌</div>
+                    <div class="guide-icon"><i class="fa-solid fa-calendar-check"></i></div>
                     <div class="guide-body">
                         <h3>Events</h3>
                         <p>Plan ahead by adding events with a start time, end time, location, and description. Perfect for study groups, exams, or any scheduled commitment.</p>
@@ -91,7 +92,7 @@
             </a>
             <a href="{{ url_for('calendar_view') }}" class="guide-card-link">
                 <div class="guide-card">
-                    <div class="guide-icon">📆</div>
+                    <div class="guide-icon"><i class="fa-solid fa-calendar-days"></i></div>
                     <div class="guide-body">
                         <h3>Calendar</h3>
                         <p>See all your homework deadlines and events laid out in a monthly calendar. Click on any item for a detailed summary.</p>
@@ -100,7 +101,7 @@
             </a>
             <a href="{{ url_for('break_time') }}" class="guide-card-link">
                 <div class="guide-card">
-                    <div class="guide-icon">🎮</div>
+                    <div class="guide-icon"><i class="fa-solid fa-mug-hot"></i></div>
                     <div class="guide-body">
                         <h3>Break Time</h3>
                         <p>Track your breaks alongside your study sessions to get a clearer picture of how you're spending your time and staying balanced.</p>
@@ -109,7 +110,7 @@
             </a>
             <a href="{{ url_for('study_summary') }}" class="guide-card-link">
                 <div class="guide-card">
-                    <div class="guide-icon">📊</div>
+                    <div class="guide-icon"><i class="fa-solid fa-chart-bar"></i></div>
                     <div class="guide-body">
                         <h3>Study Summary</h3>
                         <p>Dive into your personal analytics with charts broken down by course and daily trends. Join or create a Study Group to securely compare your stats with friends!</p>
@@ -119,7 +120,7 @@
         </div>
 
         <div class="instruction-box">
-            <p>💡 To logout of your account or edit your profile, click on the <b>Profile ▼</b> button at the top right of the page!</p>
+            <p><i class="fa-solid fa-lightbulb"></i> To logout of your account or edit your profile, click on the <b>Profile ▼</b> button at the top right of the page!</p>
         </div>
     </div>
     <script>

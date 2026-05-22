@@ -10,21 +10,22 @@
     <script>window.USERNAME = "{{ session.get('username', '') }}";</script>
     <script src="/static/dropdown.js"></script>
     <link rel="stylesheet" href="/static/dark_mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
     <div class="side-panel">
         <div class="side-panel-logo">
-            <h2>📚 Study Tracker</h2>
+            <h2><i class="fa-solid fa-graduation-cap"></i> Study Tracker</h2>
         </div>
-        <a href="{{url_for('home')}}" class="button">Home</a>
-        <a href="{{url_for('study_session')}}" class="button">Study Session</a>
-        <a href="{{url_for('notes')}}" class="button">Notes</a>
-        <a href="{{url_for('homework')}}" class="button">Homework Tasks</a>
-        <a href="#" class="button events">Events</a>
-        <a href="{{url_for('calendar_view')}}" class="button">Calendar</a>
-        <a href="{{url_for('break_time')}}" class="button">Break Time</a>
-        <a href="{{url_for('study_summary')}}" class="button">Study Summary</a>
+        <a href="{{url_for('home')}}" class="button"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="{{url_for('study_session')}}" class="button"><i class="fa-solid fa-book-open"></i> Study Session</a>
+        <a href="{{url_for('notes')}}" class="button"><i class="fa-solid fa-note-sticky"></i> Notes</a>
+        <a href="{{url_for('homework')}}" class="button"><i class="fa-solid fa-list-check"></i> Homework Tasks</a>
+        <a href="#" class="button events"><i class="fa-solid fa-calendar-check"></i> Events</a>
+        <a href="{{url_for('calendar_view')}}" class="button"><i class="fa-solid fa-calendar-days"></i> Calendar</a>
+        <a href="{{url_for('break_time')}}" class="button"><i class="fa-solid fa-mug-hot"></i> Break Time</a>
+        <a href="{{url_for('study_summary')}}" class="button"><i class="fa-solid fa-chart-bar"></i> Study Summary</a>
     </div>
 
     <div class="main-content">
@@ -37,7 +38,7 @@
         </div>
 
         <form class="events-form" method="POST" action="{{ url_for('save_event') }}">
-            <h1>🗓️ Add Event</h1>
+            <h1><i class="fa-solid fa-calendar-plus"></i> Add Event</h1>
 
             <div class="form-group">
                 <label for="event_name">Event Name:</label>
@@ -82,7 +83,7 @@
 
         <div class="events-list">
             <div class="events-header-container">
-                <h2>📅 Your Events</h2>
+                <h2><i class="fa-solid fa-calendar-check"></i> Your Events</h2>
                 <div class="filter-container">
                     <div class="search-container">
                         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -121,29 +122,37 @@
                         <div class="event-name {% if event.is_completed %}completed{% endif %}">
                             {{ event.event_name }}
                             <a href="{{ url_for('toggle_event_importance', event_id=event.id) }}" class="star-toggle" style="text-decoration: none; color: inherit; margin-left: 5px;">
-                                {% if event.is_important %}⭐{% else %}☆{% endif %}
+                                {% if event.is_important %}<i class="fa-solid fa-star" style="color: #f6ad55;"></i>{% else %}<i class="fa-regular fa-star" style="color: #a0aec0;"></i>{% endif %}
                             </a>
                         </div>
                         <div class="event-dates">
-                            📅 {{ event.start_datetime.strftime('%b %d, %Y') }}
-                            🕐 {{ event.start_datetime.strftime('%I:%M %p') }}
-                            →
-                            {% if event.start_datetime.date() != event.end_datetime.date() %}
-                                {{ event.end_datetime.strftime('%b %d, %Y') }}
-                            {% endif %}
-                            🕐 {{ event.end_datetime.strftime('%I:%M %p') }}
-                            {% if event.end_datetime < now and not event.is_completed %}
-                                <span class="past-label">(PAST)</span>
-                            {% endif %}
-                            {% if event.start_datetime <= now and event.end_datetime >= now and not event.is_completed %}
-                                <span class="occurring-label">(OCCURRING NOW)</span>
-                            {% endif %}
-                            {% if event.start_datetime > now and not event.is_completed %}
-                                <span class="future-label">(FUTURE)</span>
-                            {% endif %}
+                            <div class="event-date-row">
+                                <span class="event-date-part">
+                                    <i class="fa-solid fa-calendar-day"></i>
+                                    {{ event.start_datetime.strftime('%b %d, %Y') }}
+                                    {% if event.start_datetime.date() != event.end_datetime.date() %}
+                                        <span class="date-arrow">→</span> {{ event.end_datetime.strftime('%b %d, %Y') }}
+                                    {% endif %}
+                                </span>
+                                {% if event.end_datetime < now and not event.is_completed %}
+                                    <span class="status-badge past-badge">PAST</span>
+                                {% elif event.start_datetime <= now and event.end_datetime >= now and not event.is_completed %}
+                                    <span class="status-badge occurring-badge">OCCURRING NOW</span>
+                                {% elif event.start_datetime > now and not event.is_completed %}
+                                    <span class="status-badge future-badge">UPCOMING</span>
+                                {% endif %}
+                            </div>
+                            <div class="event-time-row">
+                                <span class="event-time-part">
+                                    <i class="fa-solid fa-clock"></i>
+                                    {{ event.start_datetime.strftime('%I:%M %p') }}
+                                    <span class="date-arrow">→</span>
+                                    {{ event.end_datetime.strftime('%I:%M %p') }}
+                                </span>
+                            </div>
                         </div>
                         {% if event.location %}
-                        <div class="event-meta">📍 {{ event.location }}</div>
+                        <div class="event-meta"><i class="fa-solid fa-location-dot"></i> {{ event.location }}</div>
                         {% endif %}
                         {% if event.description %}
                         <div class="event-meta event-description">{{ event.description }}</div>
