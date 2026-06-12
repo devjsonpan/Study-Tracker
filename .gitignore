@@ -1,8 +1,10 @@
 .env
 app.env
 __pycache__/
+**/__pycache__/
 *.pyc
 instance/
 flask_session/
 study_tracker.db
 venv/
+.vscode/
