@@ -20,9 +20,6 @@ import time
 import string
 import pytz
 import requests as http_requests
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 # app.env is not the default .env filename, so it must be passed explicitly
 load_dotenv('app.env')
@@ -88,30 +85,32 @@ def get_user_timezone(username=None):
     return 'UTC'
 
 def send_reset_email(to_email, reset_code):
-    # If MAIL credentials aren't set (local dev), print to stdout instead of sending
-    sender_email = os.getenv('MAIL_USERNAME')
-    sender_password = os.getenv('MAIL_PASSWORD')
-    
-    if not sender_email or not sender_password:
+    api_key = os.getenv('RESEND_API_KEY')
+
+    # Fall back to stdout in local dev when no API key is set
+    if not api_key:
         print(f"MOCK EMAIL to {to_email}: Your reset code is {reset_code}")
         return True
-        
+
     try:
-        msg = MIMEMultipart()
-        msg['From'] = sender_email
-        msg['To'] = to_email
-        msg['Subject'] = 'Password Reset Code - Study Tracker'
-        
-        body = f"Your password reset code is: {reset_code}\n\nIf you did not request this, please ignore this email."
-        msg.attach(MIMEText(body, 'plain'))
-        
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(sender_email, sender_password)
-        text = msg.as_string()
-        server.sendmail(sender_email, to_email, text)
-        server.quit()
-        return True
+        response = http_requests.post(
+            'https://api.resend.com/emails',
+            headers={
+                'Authorization': f'Bearer {api_key}',
+                'Content-Type': 'application/json',
+            },
+            json={
+                'from': 'Study Tracker <onboarding@resend.dev>',
+                'to': [to_email],
+                'subject': 'Password Reset Code - Study Tracker',
+                'text': f'Your password reset code is: {reset_code}\n\nIf you did not request this, please ignore this email.',
+            },
+            timeout=10,
+        )
+        if response.status_code == 200 or response.status_code == 201:
+            return True
+        print(f"Resend error: {response.status_code} {response.text}")
+        return False
     except Exception as e:
         print(f"Failed to send email: {e}")
         return False
