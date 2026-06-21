@@ -35,8 +35,8 @@
                     <input type="hidden" name="email" value="{{ reset_email }}">
                     <div style="margin-top: 8px; font-size: 13px; color: #718096;">
                         Didn't get it?
-                        <a href="#" id="resend-link" onclick="resendCode(event)" style="color: #667eea; font-weight: 600;">Resend code</a>
-                        <span id="resend-cooldown" style="display:none; color: #a0aec0;"></span>
+                        <a href="#" id="resend-link" onclick="resendCode(event)" style="color: #667eea; font-weight: 600; display: none;">Resend code</a>
+                        <span id="resend-cooldown" style="color: #a0aec0;">Resend code in <span id="resend-timer">60</span>s</span>
                     </div>
                 </div>
 
@@ -135,8 +135,26 @@
             { auth: { flowType: 'implicit' } }
         );
 
-        // Resend code: submit a hidden form with just the email, which triggers
-        // the backend to generate and send a new code (subject to 60s cooldown).
+        // Start 60s countdown on page load; show resend link only after it expires
+        {% if code_sent %}
+        (function() {
+            let seconds = 60;
+            const timerEl = document.getElementById('resend-timer');
+            const cooldownEl = document.getElementById('resend-cooldown');
+            const linkEl = document.getElementById('resend-link');
+
+            const interval = setInterval(function() {
+                seconds--;
+                if (timerEl) timerEl.textContent = seconds;
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    cooldownEl.style.display = 'none';
+                    linkEl.style.display = 'inline';
+                }
+            }, 1000);
+        })();
+        {% endif %}
+
         function resendCode(e) {
             e.preventDefault();
             const email = document.querySelector('input[name="email"]').value;
