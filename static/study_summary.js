@@ -1,3 +1,7 @@
+// Study summary page: renders all Chart.js charts and the GitHub-style activity heatmap.
+// All data arrays (dailyLabels, courseLabels, friendNames, heatmapAllData, etc.) are
+// injected as inline JSON by the Flask /summary route — no additional API calls needed.
+
 // Tab switching
 function switchTab(name) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));

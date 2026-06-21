@@ -1,3 +1,8 @@
+// Break timer — mirrors the logic in study_session.js but for breaks.
+// Breaks auto-submit the form on stop (no notes step), so the page navigates away immediately.
+// The try/catch on localStorage.getItem handles a legacy format where the value
+// was stored as a raw timestamp number instead of a JSON object.
+
 document.addEventListener("DOMContentLoaded", function () {
     const startBtn = document.getElementById('startBtn');
     const stopBtn = document.getElementById('stopBtn');
@@ -191,9 +196,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         let adjustedStartTime = new Date(startTime.getTime() + totalPausedMs);
-        if (isPaused) {
-            adjustedStartTime = new Date(adjustedStartTime.getTime() + (endTime - pauseStartTime));
-        }
+        let effectiveEndTime = isPaused ? pauseStartTime : endTime;
 
         timerStatus.textContent = "Saving break...";
         stopBtn.disabled = true;
@@ -201,7 +204,7 @@ document.addEventListener("DOMContentLoaded", function () {
         resumeBtn.disabled = true;
         cancelBtn.disabled = true;
         timeInInput.value = formatTimeString(adjustedStartTime);
-        timeOutInput.value = formatTimeString(endTime);
+        timeOutInput.value = formatTimeString(effectiveEndTime);
         window.allowInternalNavigation = true;
         form.submit();
     });

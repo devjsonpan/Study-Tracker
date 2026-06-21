@@ -1,3 +1,7 @@
+// Events page: uses the same AJAX partial-swap pattern as homework.js.
+// The edit modal includes client-side start/end validation before submitting
+// so the user gets immediate feedback without a round-trip to the server.
+
 document.addEventListener("DOMContentLoaded", function () {
     let mainContent = document.querySelector('.main-content');
     if (!mainContent) return;
@@ -5,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function attachListeners() {
         let actionButtons = document.querySelectorAll('.action-button');
         actionButtons.forEach(button => {
-            // Only add listener if we haven't already (prevent duplicates)
+            // Guard against duplicate listeners on re-attach after DOM swap
             if (!button.dataset.listenerAttached) {
                 button.dataset.listenerAttached = 'true';
 
@@ -55,7 +59,7 @@ function editEvent(eventId, eventName, startDatetime, endDatetime, location, des
     const modalHTML = `
         <div id="edit-modal" class="modal-overlay">
             <div class="modal-content">
-                <h2>✏️ Edit Event</h2>
+                <h2><i class="fa-solid fa-pen"></i> Edit Event</h2>
                 <form id="edit-form" onsubmit="saveEventEdit(event, ${eventId})">
                     <div class="form-group">
                         <label>Event Name:</label>

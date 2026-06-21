@@ -1,0 +1,204 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --sidebar-width: 260px;
+    --sidebar-bg: #0f172a;
+    --accent: #6366f1;
+    --accent-hover: #4f46e5;
+    --page-bg: #f1f5f9;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --card-shadow-hover: 0 6px 20px rgba(0,0,0,0.09);
+    --input-border: #e2e8f0;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--page-bg);
+    display: flex;
+    height: 100vh;
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* ─── Sidebar ─────────────────────────────────────────── */
+.side-panel {
+    background-color: #ffffff;
+    padding: 24px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: var(--sidebar-width);
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 100;
+    border-right: 1px solid #e2e8f0;
+}
+
+.side-panel-logo {
+    padding-bottom: 18px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.side-panel-logo h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #6366f1;
+    text-align: center;
+    letter-spacing: -0.01em;
+}
+
+.side-panel-logo h2 i {
+    color: #6366f1;
+}
+
+.side-panel .button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    text-decoration: none;
+    color: #64748b;
+    background-color: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    font-weight: 500;
+    font-size: 14px;
+    font-family: 'Plus Jakarta Sans', inherit;
+}
+
+.side-panel .button:hover {
+    background-color: rgba(99, 102, 241, 0.08);
+    color: #0f172a;
+}
+
+/* Suppress browser default :active blue flash on nav links */
+.side-panel .button:active {
+    color: rgb(100, 116, 139);
+    background-color: transparent;
+}
+
+.side-panel .button.home,
+.side-panel .button.studysession,
+.side-panel .button.notes,
+.side-panel .button.homework,
+.side-panel .button.events,
+.side-panel .button.calendar,
+.side-panel .button.breaktime,
+.side-panel .button.studysummary,
+.side-panel .button.profile {
+    background-color: #e8eaf0;
+    color: #6366f1;
+    font-weight: 600;
+}
+
+.side-panel .button i {
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+    color: #94a3b8;
+    font-size: 13px;
+    transition: color 0.15s ease;
+}
+
+.side-panel .button:hover i {
+    color: #6366f1;
+}
+
+.side-panel .button.home i,
+.side-panel .button.studysession i,
+.side-panel .button.notes i,
+.side-panel .button.homework i,
+.side-panel .button.events i,
+.side-panel .button.calendar i,
+.side-panel .button.breaktime i,
+.side-panel .button.studysummary i,
+.side-panel .button.profile i {
+    color: #6366f1;
+}
+
+.main-content {
+    margin-left: calc(var(--sidebar-width) + 20px);
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 50px;
+}
+
+/* ─── Mobile ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+    body {
+        flex-direction: column;
+        height: auto;
+        overflow-y: auto;
+    }
+
+    .side-panel {
+        width: 100%;
+        height: auto;
+        position: relative;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        align-items: center;
+        padding: 8px 12px;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+        scrollbar-width: none;
+    }
+
+    .side-panel::-webkit-scrollbar {
+        display: none;
+    }
+
+    .side-panel-logo {
+        width: auto;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        padding-right: 12px;
+        margin-right: 8px;
+        flex-shrink: 0;
+        border-bottom: none;
+        border-right: 1px solid #e2e8f0;
+    }
+
+    .side-panel-logo h2 {
+        font-size: 14px;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .side-panel .button {
+        padding: 7px 12px;
+        font-size: 12.5px;
+        flex: 0 0 auto;
+        white-space: nowrap;
+        gap: 7px;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding-bottom: 20px;
+    }
+}

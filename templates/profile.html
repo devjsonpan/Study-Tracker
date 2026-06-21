@@ -4,6 +4,7 @@
     <title>Study Tracker - Edit Profile</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/shared.css">
     <link rel="stylesheet" href="/static/profile.css">
     <link rel="stylesheet" href="/static/dropdown.css">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.default.min.css" rel="stylesheet"/>
@@ -63,9 +64,20 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="fullname">Full Name</label>
+                    <label for="fullname">Name</label>
                     <input type="text" id="fullname" name="fullname" value="{{ user.fullname }}" required>
                     <small class="form-help">This name gets displayed to others when you join groups.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    {% if user.email %}
+                    <input type="email" id="email" name="email" value="{{ user.email }}" disabled class="disabled-input">
+                    <small class="form-help">Use this email for password reset</small>
+                    {% else %}
+                    <input type="email" id="email" name="email" value="" placeholder="Add your email address">
+                    <small class="form-help">Add email for password reset. Cannot be changed once saved.</small>
+                    {% endif %}
                 </div>
 
                 <div class="form-group">
@@ -75,14 +87,13 @@
                             <option value="{{ tz }}" {% if tz == user.timezone %}selected{% endif %}>{{ tz }}</option>
                         {% endfor %}
                     </select>
-                    <small class="form-help">Select your timezone to ensure accurate tracking.</small>
                 </div>
                 
                 <div class="form-group">
                     <label>Theme Preference</label>
                     <input type="hidden" id="theme-pref-input" name="theme_pref" value="">
                     <button type="button" id="theme-toggle-btn" class="submit-button" style="background-color: #4a5568; margin-top: 0;" onclick="toggleThemeAndUpdateBtn()">Switch Theme</button>
-                    <small class="form-help">Toggle between light and dark themes (saves when you submit the form).</small>
+                    <small class="form-help">Toggle between light and dark mode (saves when you submit the form).</small>
                 </div>
                 
                 <button type="submit" class="submit-button">Save Changes</button>

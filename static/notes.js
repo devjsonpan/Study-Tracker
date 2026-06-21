@@ -1,3 +1,7 @@
+// Notes page: delete and edit actions via modal.
+// Edit uses a dynamically created form POST so the server receives standard form data —
+// no JSON endpoint needed, and it matches the existing Flask route's request.form.get() calls.
+
 function deleteNote(noteId) {
     if (confirm('Are you sure you want to delete this note? This cannot be undone.')) {
         window.location = '/delete_note/' + noteId;
@@ -22,7 +26,7 @@ function showEditModal(noteId, course, topic, notes) {
     const modalHTML = `
         <div id="edit-modal" class="modal-overlay">
             <div class="modal-content">
-                <h2>✏️ Edit Note</h2>
+                <h2><i class="fa-solid fa-pen"></i> Edit Note</h2>
                 <form id="edit-form" onsubmit="saveEdit(event, ${noteId})">
                     <div class="form-group">
                         <label>Course:</label>

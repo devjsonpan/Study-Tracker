@@ -1,3 +1,8 @@
+// Homework page: complete, delete, and star actions update the list via an AJAX partial
+// swap rather than a full page reload, so scroll position is preserved.
+// attachListeners() is called after each swap to re-bind handlers on the new HTML —
+// without this, buttons in the freshly injected content would be unresponsive.
+
 document.addEventListener("DOMContentLoaded", function () {
     let mainContent = document.querySelector('.main-content');
     if (!mainContent) return;
@@ -5,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function attachListeners() {
         let actionButtons = document.querySelectorAll('.action-button');
         actionButtons.forEach(button => {
-            // Only add listener if we haven't already (prevent duplicates)
+            // Guard against duplicate listeners being added on repeated attachListeners() calls
             if (!button.dataset.listenerAttached) {
                 button.dataset.listenerAttached = 'true';
 
@@ -55,7 +60,7 @@ function editTask(taskId, course, taskName, dueDate, description) {
     const modalHTML = `
         <div id="edit-modal" class="modal-overlay">
             <div class="modal-content">
-                <h2>✏️ Edit Task</h2>
+                <h2><i class="fa-solid fa-pen"></i> Edit Task</h2>
                 <form id="edit-form" onsubmit="saveTaskEdit(event, ${taskId})">
                     <div class="form-group">
                         <label>Course:</label>

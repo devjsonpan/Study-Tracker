@@ -6,6 +6,39 @@ html.dark-theme body {
 
 html.dark-theme .side-panel {
     background-color: #020617 !important;
+    border-right-color: rgba(99, 102, 241, 0.1) !important;
+    border-bottom-color: rgba(99, 102, 241, 0.1) !important;
+}
+
+html.dark-theme .side-panel .button {
+    color: #94a3b8 !important;
+}
+
+html.dark-theme .side-panel .button:hover {
+    background-color: rgba(99, 102, 241, 0.12) !important;
+    color: #e2e8f0 !important;
+}
+
+html.dark-theme .side-panel-logo {
+    border-bottom-color: rgba(99, 102, 241, 0.15) !important;
+}
+
+html.dark-theme .side-panel-logo h2 {
+    color: #818cf8 !important;
+}
+
+html.dark-theme .side-panel-logo h2 i {
+    color: #818cf8 !important;
+}
+
+html.dark-theme .profile-button {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+}
+
+html.dark-theme .profile-button:hover {
+    border-color: #6366f1 !important;
 }
 
 /* Cards and containers */
@@ -64,7 +97,6 @@ html.dark-theme .search-container {
     border-color: #475569 !important;
 }
 
-/* Restore left border colors for items */
 html.dark-theme .task-item,
 html.dark-theme .event-item {
     border-left-color: #667eea !important;
@@ -287,13 +319,48 @@ html.dark-theme .side-panel .button:hover i {
     color: #fbbf24 !important;
 }
 
-/* Pin logo color so it never inherits hover state from sibling buttons */
-html.dark-theme .side-panel-logo h2 {
-    color: #818cf8 !important;
+/* Active nav item in dark mode — subtle tint with lighter accent text to match light mode style */
+html.dark-theme .side-panel .button.home,
+html.dark-theme .side-panel .button.studysession,
+html.dark-theme .side-panel .button.notes,
+html.dark-theme .side-panel .button.homework,
+html.dark-theme .side-panel .button.events,
+html.dark-theme .side-panel .button.calendar,
+html.dark-theme .side-panel .button.breaktime,
+html.dark-theme .side-panel .button.studysummary {
+    background-color: rgba(99, 102, 241, 0.15) !important;
+    color: #a5b4fc !important;
 }
 
-html.dark-theme .side-panel-logo h2 i {
-    color: #818cf8 !important;
+html.dark-theme .side-panel .button.home i,
+html.dark-theme .side-panel .button.studysession i,
+html.dark-theme .side-panel .button.notes i,
+html.dark-theme .side-panel .button.homework i,
+html.dark-theme .side-panel .button.events i,
+html.dark-theme .side-panel .button.calendar i,
+html.dark-theme .side-panel .button.breaktime i,
+html.dark-theme .side-panel .button.studysummary i {
+    color: #fbbf24 !important;
+}
+
+/* Study Summary Tabs Dark Mode */
+html.dark-theme .tabs {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html.dark-theme .tab {
+    color: #94a3b8 !important;
+}
+
+html.dark-theme .tab:hover:not(.active) {
+    background-color: #334155 !important;
+    color: #f1f5f9 !important;
+}
+
+html.dark-theme .tab.active {
+    background-color: #6366f1 !important;
+    color: #ffffff !important;
 }
 
 /* Heatmap Dark Mode */

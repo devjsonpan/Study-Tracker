@@ -1,161 +1,46 @@
-body {
-    font-family: Arial, sans-serif;
-    background: #2b4783;
-    display: flex;
-    height: 100vh;
-    margin: 0;
-}
-
-.side-panel {
-    background-color: #1a202c;
-    padding: 25px 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    width: 300px;
-    box-shadow: 3px 0 15px rgba(0, 0, 0, 0.2);
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    z-index: 100;
-}
-
-.side-panel-logo {
-    color: #667eea;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-    padding-bottom: 15px;
-    margin-bottom: 15px;
-    border-bottom: 2px solid rgba(102, 126, 234, 0.5);
-}
-
-.side-panel .button {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 14px 20px;
-    text-decoration: none;
-    color: #e2e8f0;
-    background-color: transparent;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 500;
-    font-size: 15px;
-}
-
-.side-panel .button:hover {
-    background-color: rgba(102, 126, 234, 0.2);
-    color: white;
-    transform: translateX(5px);
-}
-
-.side-panel .button.home {
-    background-color: rgba(102, 126, 234, 0.3);
-    color: white;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-}
-
-.side-panel .button i {
-    width: 20px;
-    text-align: center;
-    flex-shrink: 0;
-    color: #667eea;
-    transition: color 0.3s ease;
-}
-
-.side-panel .button:hover i {
-    color: #fbbf24;
-}
-
-.guide-icon i {
-    color: #667eea;
-}
+/* home.css — inherits shared.css for sidebar, font, body */
 
 .main-content {
-    margin-left: 330px;
-    flex: 1;
-    overflow-y: auto;
     padding-bottom: 50px;
 }
 
 .content-container {
     width: 100%;
     max-width: 1000px;
-    margin: 150px auto 0 auto;
-    padding: 0 20px;
-}
-
-.logout-button {
-    display: table;
-    text-decoration: none;
-    margin: 25px 20px 30px auto;
-    padding: 15px 50px;
-    background-color: #667eea;
-    color: white;
-    border: none;
-    border-radius: 30px;
-    font-size: 16px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.logout-button:hover {
-    cursor: pointer;
-    background-color: white;
-    color: #667eea;
+    margin: 100px auto 0 auto;
+    padding: 0 24px;
 }
 
 .welcome-card {
     width: 100%;
-    margin: 25px 0 25px 0;
-    background: white;
-    border-radius: 15px;
-    padding: 35px 40px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 32px 36px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border);
     box-sizing: border-box;
 }
 
 .welcome-card h1 {
-    color: #2b4783;
-    margin: 0 0 8px 0;
-    font-size: 28px;
+    color: var(--text-primary);
+    margin: 0 0 6px 0;
+    font-size: 26px;
+    font-weight: 700;
 }
 
 .welcome-card p {
-    color: #718096;
+    color: var(--text-secondary);
     margin: 0;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .guide-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    margin: 0 0 25px 0;
-    width: 100%;
-}
-
-.guide-card {
-    background: white;
-    border-radius: 12px;
-    padding: 24px;
-    display: flex;
-    align-items: flex-start;
     gap: 16px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-sizing: border-box;
-    height: 100%;
-}
-
-.guide-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    margin: 0 0 20px 0;
+    width: 100%;
 }
 
 .guide-card-link {
@@ -164,118 +49,74 @@ body {
     display: block;
 }
 
+.guide-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    box-sizing: border-box;
+    height: 100%;
+    cursor: pointer;
+}
+
+.guide-card:hover {
+    box-shadow: var(--card-shadow-hover);
+    border-color: #c7d2fe;
+}
+
 .guide-icon {
-    font-size: 28px;
+    font-size: 24px;
     flex-shrink: 0;
-    margin-top: 2px;
+}
+
+.guide-icon i {
+    color: var(--accent);
 }
 
 .guide-body h3 {
-    color: #2b4783;
-    margin: 0 0 6px 0;
-    font-size: 17px;
+    color: var(--text-primary);
+    margin: 0 0 5px 0;
+    font-size: 15px;
+    font-weight: 600;
 }
 
 .guide-body p {
-    color: #718096;
+    color: var(--text-secondary);
     margin: 0;
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 13.5px;
+    line-height: 1.55;
 }
 
 .instruction-box {
     width: 100%;
     margin: 0 0 30px 0;
-    background: #ebf4ff;
-    border-left: 4px solid #667eea;
-    padding: 15px 20px;
-    border-radius: 8px;
-    color: #2c5282;
+    background: #eef2ff;
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    color: #3730a3;
     box-sizing: border-box;
+    font-size: 14px;
 }
 
 .instruction-box p {
     margin: 0;
 }
 
-/* Mobile Responsiveness */
+/* Mobile */
 @media (max-width: 900px) {
-    body {
-        flex-direction: column;
-        height: auto;
-        overflow-y: auto;
-    }
-
-        .side-panel {
-        width: 100%;
-        height: auto;
-        position: relative;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        align-items: center;
-        padding: 10px 15px;
-        box-sizing: border-box;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none; /* Firefox */
-        justify-content: flex-start;
-    }
-    .side-panel::-webkit-scrollbar {
-        display: none; /* Chrome/Safari */
-    }
-
-    .side-panel-logo {
-        width: auto;
-        margin-bottom: 0;
-        padding-bottom: 0;
-        margin-right: 15px;
-        flex-shrink: 0;
-        border-bottom: none;
-    }
-    .side-panel-logo h2 {
-        font-size: 18px;
-        margin: 0;
-    }
-
-    .side-panel .button {
-        padding: 8px 14px;
-        font-size: 13px;
-        flex: 0 0 auto;
-        max-width: none;
-        white-space: nowrap;
-        margin: 0 5px 0 0;
-        justify-content: center;
-    }
-
-    .main-content {
-        margin-left: 0;
-        width: 100%;
-        box-sizing: border-box;
-        padding-bottom: 20px;
-    }
-
-    .logout-button {
-        margin: 15px auto;
-    }
-
     .content-container {
         width: 100%;
         margin: 0;
-        padding: 20px;
-        box-sizing: border-box;
+        padding: 16px;
     }
 
     .welcome-card {
-        width: 100%;
-        margin-top: 0px;
-    }
-
-    .guide-card {
-        width: 100%;
-    }
-
-    .instruction-box {
-        width: 100%;
+        margin-top: 0;
     }
 
     .guide-grid {

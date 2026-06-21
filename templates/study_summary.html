@@ -4,6 +4,7 @@
     <title>Study Tracker - Study Summary</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/shared.css">
     <link rel="stylesheet" href="/static/study_summary.css">
     <link rel="stylesheet" href="/static/dropdown.css">
     <script src="/static/study_summary.js"></script>
@@ -97,7 +98,7 @@
             </div>
             <div class="charts-grid">
                 <div class="chart-card">
-                    <h3><i class="fa-solid fa-chart-bar"></i> Today's Activity</h3>
+                    <h3>Today's Activity</h3>
                     <p class="chart-subtitle">Study vs break hours logged today</p>
                     <div class="chart-wrapper chart-wrapper--friends">
                         <div class="chart-scroll-inner" id="friendsDailyInner">
@@ -106,7 +107,7 @@
                     </div>
                 </div>
                 <div class="chart-card">
-                    <h3><i class="fa-solid fa-calendar-week"></i> Weekly Activity</h3>
+                    <h3>Weekly Activity</h3>
                     <p class="chart-subtitle">Study vs break hours logged this week</p>
                     <div class="chart-wrapper chart-wrapper--friends">
                         <div class="chart-scroll-inner" id="friendsWeeklyInner">
@@ -117,7 +118,7 @@
             </div>
 
             <div class="leaderboard-card">
-                <h3><i class="fa-solid fa-trophy"></i> Weekly Leaderboard</h3>
+                <h3>Weekly Leaderboard</h3>
                 <div class="leaderboard">
                     {% for i in range(friend_names|length) %}
                     <div class="leaderboard-row {% if friend_names[i] == current_fullname %}is-you{% endif %}">
@@ -166,30 +167,14 @@
             {% if course_labels %}
             <div class="charts-grid">
                 <div class="chart-card">
-                    <h3><i class="fa-solid fa-book"></i> Course Breakdown (All-Time)</h3>
-                    <p class="chart-subtitle">Total hours per subject</p>
-                    <div class="chart-wrapper chart-wrapper--donut">
-                        <canvas id="courseChart"></canvas>
-                    </div>
-                </div>
-                <div class="chart-card">
-                    <h3><i class="fa-solid fa-book"></i> Course Breakdown (Today)</h3>
-                    <p class="chart-subtitle">Hours per subject today</p>
-                    <div class="chart-wrapper chart-wrapper--donut">
-                        <canvas id="todayCourseChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="charts-grid">
-                <div class="chart-card">
-                    <h3><i class="fa-solid fa-chart-simple"></i> Today's Activity</h3>
+                    <h3>Today's Activity</h3>
                     <p class="chart-subtitle">Study vs break hours today</p>
                     <div class="chart-wrapper">
                         <canvas id="todayBarChart"></canvas>
                     </div>
                 </div>
                 <div class="chart-card">
-                    <h3><i class="fa-solid fa-chart-line"></i> Trend Over Time</h3>
+                    <h3>Trend Over Time</h3>
                     <p class="chart-subtitle">All-time study vs break hours</p>
                     <div class="trend-controls">
                         <button id="trendPrev" type="button" class="trend-nav" disabled aria-label="View earlier dates">←</button>
@@ -201,10 +186,26 @@
                     </div>
                 </div>
             </div>
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Today's Course Breakdown</h3>
+                    <p class="chart-subtitle">Hours per subject today</p>
+                    <div class="chart-wrapper chart-wrapper--donut">
+                        <canvas id="todayCourseChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>All-Time Course Breakdown</h3>
+                    <p class="chart-subtitle">Total hours per subject</p>
+                    <div class="chart-wrapper chart-wrapper--donut">
+                        <canvas id="courseChart"></canvas>
+                    </div>
+                </div>
+            </div>
             <div class="chart-card heatmap-card" style="margin-top: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                     <div>
-                        <h3><i class="fa-solid fa-calendar-days"></i> Study Heatmap</h3>
+                        <h3>Study Heatmap</h3>
                         <p class="chart-subtitle" style="margin-bottom: 15px;">Daily study hours</p>
                     </div>
                     <div>

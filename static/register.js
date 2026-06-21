@@ -1,3 +1,6 @@
+// Registration page: auto-detects the browser's timezone and pre-selects it in the
+// dropdown, then initializes TomSelect so the list is searchable.
+
 document.addEventListener('DOMContentLoaded', function() {
     const timezoneSelect = document.getElementById('timezone');
     

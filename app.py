@@ -1,7 +1,10 @@
-# Import the necessary modules from the libraries
+# Study Time Tracker — Flask application entry point.
+# All routes, models, and business logic live in this single file (no blueprints).
+# See CLAUDE.md for architecture overview, conventions, and environment variable docs.
+
 from alembic.autogenerate.compare import server_defaults
 from alembic.autogenerate.compare import schema
-from flask import Flask, render_template, request, redirect, url_for, session, flash, get_flashed_messages
+from flask import Flask, render_template, request, redirect, url_for, session, flash, get_flashed_messages, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
@@ -11,56 +14,61 @@ from datetime import timedelta
 from flask_session import Session
 from dotenv import load_dotenv
 import os
+import re
 import secrets
+import time
 import string
 import pytz
+import requests as http_requests
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
-# Load environment variables from .env file
-load_dotenv()
+# app.env is not the default .env filename, so it must be passed explicitly
+load_dotenv('app.env')
+load_dotenv()  # fallback for any .env file or Railway-injected env vars
 
-# Initialize the Flask application
 app = Flask(__name__)
 
-# Configure SQLAlchemy to use the SQLite database
+# --- Database config ---
+# Railway injects DATABASE_URL as postgres://, but SQLAlchemy requires postgresql://
 database_url = os.getenv('DATABASE_URL', 'sqlite:///study_tracker.db')
 if database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 
-# Configure Flask-Session
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
-# Create an instance of SQLAlchemy to interact with the database
 db = SQLAlchemy(app)
-
 bcrypt = Bcrypt(app)
 migrate = Migrate(app, db)
 
-# Define the StudyGroup model for the database
+# --- Models ---
+
 class StudyGroup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     join_code = db.Column(db.String, unique=True, nullable=False)
 
-# Helper function to generate a random join code
+# --- Helpers ---
+
 def generate_join_code(length=6):
     characters = string.ascii_uppercase + string.digits
     return ''.join(secrets.choice(characters) for _ in range(length))
 
-# Timezones available for registration/profile selection
 TIMEZONES = pytz.common_timezones
 
-# Helper function to get the current datetime in the specified timezone
 def get_current_datetime(user_timezone=None):
+    # Returns naive datetime in the user's local time (no tzinfo).
+    # All datetimes in the DB are stored this way — tzinfo is only applied at display time.
     try:
         tz = pytz.timezone(user_timezone) if user_timezone else pytz.UTC
     except pytz.UnknownTimeZoneError:
         tz = pytz.UTC
     return datetime.now(tz).replace(tzinfo=None)
 
-# Helper function to get the current date in the specified timezone
 def get_current_date(user_timezone=None):
     try:
         tz = pytz.timezone(user_timezone) if user_timezone else pytz.UTC
@@ -68,7 +76,6 @@ def get_current_date(user_timezone=None):
         tz = pytz.UTC
     return datetime.now(tz).date()
 
-# Helper to get the current user's timezone or fallback to UTC
 def get_user_timezone(username=None):
     if username is None:
         username = session.get('username')
@@ -80,19 +87,46 @@ def get_user_timezone(username=None):
 
     return 'UTC'
 
-# Define the User model for the database
+def send_reset_email(to_email, reset_code):
+    # If MAIL credentials aren't set (local dev), print to stdout instead of sending
+    sender_email = os.getenv('MAIL_USERNAME')
+    sender_password = os.getenv('MAIL_PASSWORD')
+    
+    if not sender_email or not sender_password:
+        print(f"MOCK EMAIL to {to_email}: Your reset code is {reset_code}")
+        return True
+        
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = sender_email
+        msg['To'] = to_email
+        msg['Subject'] = 'Password Reset Code - Study Tracker'
+        
+        body = f"Your password reset code is: {reset_code}\n\nIf you did not request this, please ignore this email."
+        msg.attach(MIMEText(body, 'plain'))
+        
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(sender_email, sender_password)
+        text = msg.as_string()
+        server.sendmail(sender_email, to_email, text)
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+        return False
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True, nullable=False)
     fullname = db.Column(db.String, nullable=False)
-    password = db.Column(db.String, nullable=False)
+    password = db.Column(db.String, nullable=True)
     timezone = db.Column(db.String, nullable=False)
-    security_question = db.Column(db.String, nullable=False)
-    security_answer = db.Column(db.String, nullable=False)
+    google_id = db.Column(db.String, unique=True, nullable=True)  # set for Google OAuth users
+    email = db.Column(db.String, unique=True, nullable=True)      # used for password reset + OAuth linking
     group_id = db.Column(db.Integer, db.ForeignKey('study_group.id'), nullable=True)
     group = db.relationship('StudyGroup', backref='members')
 
-# Define the StudySession model for the database
 class StudySession(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, nullable=False) 
@@ -101,10 +135,9 @@ class StudySession(db.Model):
     start_datetime = db.Column(db.DateTime, nullable=False)
     end_datetime = db.Column(db.DateTime, nullable=False)
     notes = db.Column(db.String, nullable=True)
-    hidden_from_notes = db.Column(db.Boolean, default=False, nullable=False)
+    hidden_from_notes = db.Column(db.Boolean, default=False, nullable=False)  # soft-delete: row kept to preserve study time stats
     is_important = db.Column(db.Boolean, default=False, nullable=False)
 
-# Define the HomeworkTask model for the database
 class HomeworkTask(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, nullable=False)
@@ -115,6 +148,7 @@ class HomeworkTask(db.Model):
     is_completed = db.Column(db.Boolean, default=False, nullable=False)
     is_important = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=get_current_datetime)
+
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -128,14 +162,14 @@ class Event(db.Model):
     is_important = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=get_current_datetime)
 
-# Define the BreakEntry model for the database
 class BreakEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, nullable=False)
     start_datetime = db.Column(db.DateTime, nullable=False)
     end_datetime = db.Column(db.DateTime, nullable=False)
 
-# Route for the login page
+# --- Auth Routes ---
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
     error = None
@@ -156,47 +190,99 @@ def login():
 
         user = User.query.filter_by(username=username).first()
 
-        if user and bcrypt.check_password_hash(user.password, password):
+        if user and user.password and bcrypt.check_password_hash(user.password, password):
             session['username'] = user.username
             return redirect(url_for('home', fullname=user.fullname))
         else:
             error = 'Invalid login credentials. Please try again.'
 
-    return render_template('login.html', error=error, success=success, show_reset_form=show_reset_form)
+    return render_template(
+        'login.html',
+        error=error,
+        success=success,
+        show_reset_form=show_reset_form,
+        supabase_url=os.getenv('SUPABASE_URL', ''),
+        supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', '')
+    )
 
-# Route for password reset
 @app.route('/reset_password', methods=['POST'])
 def reset_password():
     error = None
-    username = request.form.get('username')
-    security_answer = request.form.get('security_answer')
+    email = request.form.get('email')
+    verification_code = request.form.get('verification_code')
     new_password = request.form.get('new_password')
     confirm_password = request.form.get('confirm_password')
     
-    user = User.query.filter_by(username=username).first()
+    if not email:
+        return redirect(url_for('login', forgot=1))
+        
+    user = User.query.filter_by(email=email).first()
     
     if not user:
-        error = 'Username not found.'
+        error = 'Email not found.'
         return render_template('login.html', 
                              error=error, 
-                             show_reset_form=True, 
-                             username=username)
+                             show_reset_form=True,
+                             supabase_url=os.getenv('SUPABASE_URL', ''),
+                             supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', ''))
     
-    # If security answer not provided yet, show the question
-    if not security_answer:
-        return render_template('login.html', 
-                             show_reset_form=True, 
-                             security_question=user.security_question,
-                             username=username)
-    
-    # Verify security answer (case-insensitive)
-    if security_answer.lower().strip() != user.security_answer:
-        error = 'Incorrect security answer. Please try again.'
-        return render_template('login.html', 
-                             error=error, 
-                             show_reset_form=True, 
-                             security_question=user.security_question,
-                             username=username)
+    # If verification code not provided yet, generate and send it
+    if not verification_code:
+        # 60-second cooldown to prevent spam
+        last_sent = session.get('reset_code_sent_at')
+        if last_sent and (time.time() - last_sent) < 60:
+            remaining = int(60 - (time.time() - last_sent))
+            error = f'Please wait {remaining} second{"s" if remaining != 1 else ""} before requesting another code.'
+            return render_template('login.html',
+                                 error=error,
+                                 show_reset_form=True,
+                                 supabase_url=os.getenv('SUPABASE_URL', ''),
+                                 supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', ''))
+
+        import random
+        code = f"{random.randint(100000, 999999)}"
+        session['reset_code'] = code
+        session['reset_email'] = email
+        session['reset_code_sent_at'] = time.time()
+        session['reset_code_expiry'] = time.time() + 600  # expires in 10 minutes
+
+        if send_reset_email(email, code):
+            return render_template('login.html',
+                                 show_reset_form=True,
+                                 code_sent=True,
+                                 reset_email=email,
+                                 supabase_url=os.getenv('SUPABASE_URL', ''),
+                                 supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', ''))
+        else:
+            error = 'Failed to send reset email. Please try again later.'
+            return render_template('login.html',
+                                 error=error,
+                                 show_reset_form=True,
+                                 supabase_url=os.getenv('SUPABASE_URL', ''),
+                                 supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', ''))
+
+    # Check if code has expired (10-minute window)
+    if time.time() > session.get('reset_code_expiry', 0):
+        session.pop('reset_code', None)
+        session.pop('reset_code_expiry', None)
+        session.pop('reset_code_sent_at', None)
+        error = 'Your verification code has expired. Please request a new one.'
+        return render_template('login.html',
+                             error=error,
+                             show_reset_form=True,
+                             supabase_url=os.getenv('SUPABASE_URL', ''),
+                             supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', ''))
+
+    # Verify code
+    if verification_code != session.get('reset_code') or email != session.get('reset_email'):
+        error = 'Invalid verification code.'
+        return render_template('login.html',
+                             error=error,
+                             show_reset_form=True,
+                             code_sent=True,
+                             reset_email=email,
+                             supabase_url=os.getenv('SUPABASE_URL', ''),
+                             supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', ''))
     
     # Check if passwords match
     if new_password != confirm_password:
@@ -204,18 +290,24 @@ def reset_password():
         return render_template('login.html', 
                              error=error, 
                              show_reset_form=True, 
-                             security_question=user.security_question,
-                             username=username)
+                             code_sent=True, 
+                             reset_email=email,
+                             supabase_url=os.getenv('SUPABASE_URL', ''),
+                             supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', ''))
     
     # Update password
     user.password = bcrypt.generate_password_hash(new_password).decode('utf-8')
     db.session.commit()
     
+    session.pop('reset_code', None)
+    session.pop('reset_email', None)
+    session.pop('reset_code_expiry', None)
+    session.pop('reset_code_sent_at', None)
+    
     # Redirect to login page with success message
     flash('Password reset successful! You can now login with your new password.', 'success')
     return redirect(url_for('login'))
 
-# Route for the registration page
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     error = None
@@ -225,39 +317,41 @@ def register():
         fullname = request.form.get('fullname')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
-        security_question = request.form.get('security_question')
-        security_answer = request.form.get('security_answer')
+        email = request.form.get('email')
         timezone = request.form.get('timezone')
 
         # Check if passwords match
         if password != confirm_password:
             error = 'Passwords do not match. Please try again.'
-            return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=timezone)
+            return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=timezone, supabase_url=os.getenv('SUPABASE_URL', ''), supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', ''))
         
-        # Check if security answer is provided
-        if not security_answer or len(security_answer.strip()) == 0:
-            error = 'Please provide a security answer.'
-            return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=timezone)
+        # Check if email is provided
+        if not email or len(email.strip()) == 0:
+            error = 'Please provide an email address.'
+            return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=timezone, supabase_url=os.getenv('SUPABASE_URL', ''), supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', ''))
 
         if not timezone or timezone not in TIMEZONES:
             error = 'Please select a valid timezone.'
-            return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=timezone)
+            return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=timezone, supabase_url=os.getenv('SUPABASE_URL', ''), supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', ''))
             
         existing_user = User.query.filter_by(username=username).first()
+        existing_email = User.query.filter_by(email=email).first()
         
         # Check if new user can be created
         if existing_user:
             error = 'Username is already taken. Please choose a different username.'
-            return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=timezone)
+            return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=timezone, supabase_url=os.getenv('SUPABASE_URL', ''), supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', ''))
+        elif existing_email:
+            error = 'Email is already registered. Please log in or use a different email.'
+            return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=timezone, supabase_url=os.getenv('SUPABASE_URL', ''), supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', ''))
         else:
             hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
             new_user = User(
                 username=username, 
                 fullname=fullname, 
+                email=email,
                 password=hashed_password, 
                 timezone=timezone,
-                security_question=security_question,
-                security_answer=security_answer.lower().strip()
             )
             db.session.add(new_user)
             db.session.commit()
@@ -265,9 +359,89 @@ def register():
             session['username'] = new_user.username
             return redirect(url_for('login'))
 
-    return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=None)
+    return render_template('register.html', error=error, timezones=TIMEZONES, selected_timezone=None, supabase_url=os.getenv('SUPABASE_URL', ''), supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', ''))
 
-# Route for the home page
+# Google OAuth flow (implicit mode):
+# 1. Login page calls Supabase JS signInWithOAuth → redirects to Google
+# 2. Google redirects back to Supabase, which redirects to /auth/callback with token in URL hash
+# 3. auth_callback.html JS reads the token and POSTs it to /auth/verify
+# 4. /auth/verify validates against Supabase REST API, then creates or links a User row
+@app.route('/auth/callback')
+def auth_callback():
+    return render_template(
+        'auth_callback.html',
+        supabase_url=os.getenv('SUPABASE_URL', ''),
+        supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', '')
+    )
+
+# Verify Supabase access token and create/find user in DB
+@app.route('/auth/verify', methods=['POST'])
+def auth_verify():
+    access_token = request.json.get('access_token')
+    if not access_token:
+        return jsonify({'error': 'No token provided'}), 400
+
+    supabase_url = os.getenv('SUPABASE_URL')
+    supabase_anon_key = os.getenv('SUPABASE_ANON_KEY')
+
+    resp = http_requests.get(
+        f"{supabase_url}/auth/v1/user",
+        headers={
+            "Authorization": f"Bearer {access_token}",
+            "apikey": supabase_anon_key
+        }
+    )
+
+    if resp.status_code != 200:
+        return jsonify({'error': 'Invalid token'}), 401
+
+    user_data = resp.json()
+    google_id = user_data.get('id')
+    email = user_data.get('email', '')
+    metadata = user_data.get('user_metadata', {})
+    full_name = metadata.get('full_name') or metadata.get('name') or email.split('@')[0]
+
+    # Look up by google_id first; fall back to email so that a user who previously
+    # registered with a password can link their Google account on first OAuth login
+    user = User.query.filter_by(google_id=google_id).first()
+    if not user and email:
+        user = User.query.filter_by(email=email).first()
+
+    if not user:
+        base_username = re.sub(r'[^a-zA-Z0-9_]', '', email.split('@')[0]) or 'user'
+        username = base_username
+        counter = 1
+        while User.query.filter_by(username=username).first():
+            username = f"{base_username}{counter}"
+            counter += 1
+
+        user = User(
+            username=username,
+            fullname=full_name,
+            email=email,
+            password=None,
+            timezone='UTC',
+            google_id=google_id
+        )
+        db.session.add(user)
+        db.session.commit()
+    else:
+        # Attach google_id and email to existing account if not set
+        changed = False
+        if not user.google_id:
+            user.google_id = google_id
+            changed = True
+        if not user.email:
+            user.email = email
+            changed = True
+        if changed:
+            db.session.commit()
+
+    session['username'] = user.username
+    return jsonify({'success': True})
+
+# --- Core Routes ---
+
 @app.route('/home')
 def home():
     if session.get('username') == None:
@@ -278,7 +452,6 @@ def home():
 
     return render_template('home.html', username=username, fullname=fullname)
 
-# Route for the profile page
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
     if session.get('username') == None:
@@ -289,6 +462,7 @@ def profile():
     if request.method == 'POST':
         new_fullname = request.form.get('fullname')
         new_timezone = request.form.get('timezone')
+        new_email = request.form.get('email', '').strip()
 
         if new_fullname:
             user.fullname = new_fullname
@@ -299,12 +473,21 @@ def profile():
             flash('Please select a valid timezone.', 'error')
             return render_template('profile.html', user=user, timezones=TIMEZONES)
 
+        # Only allow setting email if one isn't already on the account
+        if new_email and not user.email:
+            existing = User.query.filter_by(email=new_email).first()
+            if existing:
+                flash('That email is already linked to another account.', 'error')
+                return render_template('profile.html', user=user, timezones=TIMEZONES)
+            user.email = new_email
+
         db.session.commit()
         flash('Profile updated successfully!', 'success')
-            
+
     return render_template('profile.html', user=user, timezones=TIMEZONES)
 
-# Route for the study session page
+# --- Study Session Routes ---
+
 @app.route('/session')
 def study_session():
     if session.get('username') == None:
@@ -312,7 +495,6 @@ def study_session():
 
     return render_template('study_session.html')
 
-# Route for saving the study session data
 @app.route('/save_study_session', methods=['POST'])
 def save_study_session():
     if request.method == 'POST':
@@ -343,7 +525,8 @@ def save_study_session():
 
     return render_template('study_session.html')
 
-# Route for the homework page
+# --- Homework Routes ---
+
 @app.route('/homework')
 def homework():
     if session.get('username') == None:
@@ -380,7 +563,6 @@ def homework():
 
     return render_template('homework.html', tasks=tasks, now=get_current_datetime(get_user_timezone(username)), default_deadline=default_deadline_str, current_sort=sort_by)
 
-# Route for saving new homework task
 @app.route('/save_homework', methods=['POST'])
 def save_homework():
     if request.method == 'POST':
@@ -409,7 +591,6 @@ def save_homework():
 
     return redirect(url_for('homework', sort=session.get('sort_homework', 'deadline_asc')))
 
-# Route for marking task as completed
 @app.route('/complete_task/<int:task_id>')
 def complete_task(task_id):
     if session.get('username') == None:
@@ -424,7 +605,6 @@ def complete_task(task_id):
 
     return redirect(url_for('homework', sort=session.get('sort_homework', 'deadline_asc')))
 
-# Route for toggling task importance
 @app.route('/toggle_task_importance/<int:task_id>')
 def toggle_task_importance(task_id):
     if session.get('username') == None:
@@ -439,7 +619,6 @@ def toggle_task_importance(task_id):
     # Return to same page, keeping query params if any
     return redirect(request.referrer or url_for('homework'))
 
-# Route for deleting task
 @app.route('/delete_task/<int:task_id>')
 def delete_task(task_id):
     if session.get('username') == None:
@@ -454,7 +633,6 @@ def delete_task(task_id):
 
     return redirect(url_for('homework', sort=session.get('sort_homework', 'deadline_asc')))
 
-# Route for editing a homework task
 @app.route('/edit_task/<int:task_id>', methods=['POST'])
 def edit_task(task_id):
     if session.get('username') == None:
@@ -472,6 +650,8 @@ def edit_task(task_id):
 
     return redirect(url_for('homework', sort=session.get('sort_homework', 'deadline_asc')))
  
+# --- Events Routes ---
+
 @app.route('/events')
 def events():
     if session.get('username') == None:
@@ -523,7 +703,6 @@ def events():
                          default_end=default_end_str,
                          current_sort=sort_by)
 
-# Route for saving new event
 @app.route('/save_event', methods=['POST'])
 def save_event():
     if request.method == 'POST':
@@ -559,7 +738,6 @@ def save_event():
 
     return redirect(url_for('events', sort=session.get('sort_events', 'start_asc')))
 
-# Route for marking event as completed
 @app.route('/complete_event/<int:event_id>')
 def complete_event(event_id):
     if session.get('username') == None:
@@ -574,7 +752,6 @@ def complete_event(event_id):
 
     return redirect(url_for('events', sort=session.get('sort_events', 'start_asc')))
 
-# Route for toggling event importance
 @app.route('/toggle_event_importance/<int:event_id>')
 def toggle_event_importance(event_id):
     if session.get('username') == None:
@@ -589,7 +766,6 @@ def toggle_event_importance(event_id):
     # Return to same page, keeping query params if any
     return redirect(request.referrer or url_for('events'))
 
-# Route for deleting event
 @app.route('/delete_event/<int:event_id>')
 def delete_event(event_id):
     if session.get('username') == None:
@@ -604,7 +780,6 @@ def delete_event(event_id):
 
     return redirect(url_for('events', sort=session.get('sort_events', 'start_asc')))
 
-# Route for editing an event
 @app.route('/edit_event/<int:event_id>', methods=['POST'])
 def edit_event(event_id):
     if session.get('username') == None:
@@ -630,7 +805,8 @@ def edit_event(event_id):
 
     return redirect(url_for('events', sort=session.get('sort_events', 'start_asc')))
 
-# Route for the calendar page
+# --- Calendar Route ---
+
 @app.route('/calendar')
 def calendar_view():
     if session.get('username') == None:
@@ -668,6 +844,7 @@ def calendar_view():
 
     for event in events:
         end_dt = event.end_datetime
+        # FullCalendar treats midnight as "end of previous day", so nudge it to avoid disappearing events
         if end_dt.hour == 0 and end_dt.minute == 0:
             end_dt = end_dt + timedelta(minutes=1)
 
@@ -691,7 +868,8 @@ def calendar_view():
 
     return render_template('calendar.html', calendar_events=calendar_events)
 
-# Route for the break page
+# --- Break Routes ---
+
 @app.route('/break')
 def break_time():
     if session.get('username') == None:
@@ -699,7 +877,6 @@ def break_time():
     
     return render_template('break_time.html')
 
-# Route for saving the break data
 @app.route('/save_break', methods=['POST'])
 def save_break():
     if request.method == 'POST':
@@ -723,7 +900,8 @@ def save_break():
 
     return render_template('break_time.html')
 
-# Route for the notes page
+# --- Notes Routes ---
+
 @app.route('/notes')
 def notes():
     if session.get('username') == None:
@@ -754,7 +932,6 @@ def notes():
     
     return render_template('notes.html', sessions=sessions_with_notes, current_sort=sort_by)
 
-# Route for toggling note importance
 @app.route('/toggle_note_importance/<int:session_id>')
 def toggle_note_importance(session_id):
     if session.get('username') == None:
@@ -768,7 +945,6 @@ def toggle_note_importance(session_id):
         
     return redirect(request.referrer or url_for('notes'))
 
-# Route for deleting a note
 @app.route('/delete_note/<int:session_id>')
 def delete_note(session_id):
     if session.get('username') == None:
@@ -789,7 +965,6 @@ def delete_note(session_id):
 
     return redirect(url_for('notes', sort=session.get('sort_notes', 'newest')))
 
-# Route for editing a note
 @app.route('/edit_note/<int:session_id>', methods=['POST'])
 def edit_note(session_id):
     if session.get('username') == None:
@@ -812,8 +987,11 @@ def edit_note(session_id):
 
     return redirect(url_for('notes', sort=session.get('sort_notes', 'newest')))
 
-# Helper function to calculate the duration of a study session in minutes
+# --- Study Groups ---
+
 def calculate_duration_mins(start_datetime, end_datetime, target_date=None):
+    # When target_date is given, clips the session to only the portion that falls on that day.
+    # Needed because sessions can span midnight.
     if target_date is None:
         return (end_datetime - start_datetime).total_seconds() / 60.0
     
@@ -828,7 +1006,6 @@ def calculate_duration_mins(start_datetime, end_datetime, target_date=None):
         return (chunk_end - chunk_start).total_seconds() / 60.0
     return 0.0
 
-# Route for creating a study group
 @app.route('/create_group', methods=['POST'])
 def create_group():
     if session.get('username') == None:
@@ -858,7 +1035,6 @@ def create_group():
     flash(f'Group "{group_name}" created! Your join code is {code}', 'success')
     return redirect(url_for('study_summary'))
 
-# Route for joining a study group
 @app.route('/join_group', methods=['POST'])
 def join_group():
     if session.get('username') == None:
@@ -883,6 +1059,7 @@ def join_group():
 
 @app.route('/leave_group', methods=['POST'])
 def leave_group():
+    # Auto-deletes the group if this user is the last member
     if session.get('username') == None:
         return redirect(url_for('login'))
         
@@ -903,6 +1080,10 @@ def leave_group():
     
     flash('You have left the group.', 'success')
     return redirect(url_for('study_summary'))
+
+# --- Summary Route ---
+# Most complex route: aggregates leaderboard data, daily breakdowns, course pie chart,
+# and heatmap all in Python, then passes everything as JSON-serializable values to the template.
 
 @app.route('/summary')
 def study_summary():
@@ -938,7 +1119,8 @@ def study_summary():
     today_end_dt = today_start_dt + timedelta(days=1)
     week_start = today - timedelta(days=today.weekday())
 
-    # Friends comparison data
+    # Put current user first so their bar is always at the top of leaderboard charts
+    # Friends comparison arrays — parallel lists zipped together for Chart.js bar charts
     friend_names = []
     friend_study_hours = []
     friend_break_hours = []
@@ -998,7 +1180,7 @@ def study_summary():
     else:
         friend_study_hours, friend_break_hours, friend_names, friend_today_study, friend_today_break = [], [], [], [], []
 
-    # Self analytics data
+    # Self analytics: iterate sessions day-by-day to handle sessions that span midnight
     my_sessions = StudySession.query.filter_by(username=current_username).order_by(StudySession.start_datetime).all()
     my_breaks = BreakEntry.query.filter_by(username=current_username).order_by(BreakEntry.start_datetime).all()
 
@@ -1055,7 +1237,7 @@ def study_summary():
         daily_study_values = []
         daily_break_values = []
 
-    # Calculate heatmap data for all time (minimum 365 days)
+    # Heatmap covers at minimum the last 365 days, extended further if the user has older data
     heatmap_all_data = []
     
     if first_date:
@@ -1072,7 +1254,7 @@ def study_summary():
             'hours': round(daily_study.get(d, 0), 2)
         })
 
-    # Today's data for My Stats tab
+    # Today's data — re-queried separately to use calculate_duration_mins for midnight-spanning sessions
     today_sessions = StudySession.query.filter_by(username=current_username).filter(
         StudySession.start_datetime < today_end_dt,
         StudySession.end_datetime >= today_start_dt
@@ -1138,6 +1320,6 @@ def study_summary():
         heatmap_all_data=heatmap_all_data,
     )
 
-# Main block to run the application
+# --- Entry Point ---
 if __name__ == '__main__':
     app.run(debug=True)

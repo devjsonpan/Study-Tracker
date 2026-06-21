@@ -1,3 +1,10 @@
+// Study session timer. Active session state (start time, pause data) is persisted in
+// localStorage per user so a page refresh restores the running timer.
+//
+// Pause handling: rather than sending pause intervals to the backend, we track total
+// paused milliseconds and shift the start time forward by that amount on stop. This
+// lets the backend receive a clean start/end pair with no gaps.
+
 document.addEventListener("DOMContentLoaded", function () {
     const startBtn = document.getElementById('startBtn');
     const stopBtn = document.getElementById('stopBtn');
@@ -213,14 +220,13 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // To make the duration correct based on start/end, we can just push startTime forward by the total paused ms.
+        // Shift start forward by prior pauses so end - start = actual study time.
+        // If stopped while still paused, the last moment of studying was when the pause began.
         let adjustedStartTime = new Date(startTime.getTime() + totalPausedMs);
-        if (isPaused) {
-            adjustedStartTime = new Date(adjustedStartTime.getTime() + (endTime - pauseStartTime));
-        }
+        let effectiveEndTime = isPaused ? pauseStartTime : endTime;
 
         timeInInput.value = formatTimeString(adjustedStartTime);
-        timeOutInput.value = formatTimeString(endTime);
+        timeOutInput.value = formatTimeString(effectiveEndTime);
         localStorage.removeItem(storageKey);
 
         // Mark as having unsaved session data

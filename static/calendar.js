@@ -1,3 +1,9 @@
+// Calendar page: initializes FullCalendar with homework tasks and events.
+// Both types are pre-converted to FullCalendar's event format by the Flask /calendar
+// route and passed as the `calendarEvents` JSON variable.
+// Clicking an event opens a read-only detail modal — edits must be done on the
+// Homework or Events pages.
+
 document.addEventListener('DOMContentLoaded', function () {
     var calendarEl = document.getElementById('calendar');
 
@@ -43,11 +49,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             let statusClass, statusText;
             if (props.completed) {
-                statusClass = 'completed'; statusText = 'Completed ✅';
+                statusClass = 'completed'; statusText = 'Completed';
             } else if (info.event.extendedProps.type === 'task' && new Date() > info.event.start) {
-                statusClass = 'overdue'; statusText = 'Overdue ❌';
+                statusClass = 'overdue'; statusText = 'Overdue';
             } else {
-                statusClass = 'pending'; statusText = 'Pending 🕒';
+                statusClass = 'pending'; statusText = 'Pending';
             }
 
             let rows = '';
@@ -101,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             document.getElementById('modal-content').innerHTML = `
-                <h2>${type === 'Homework Task' ? '✅' : '🗓️'} ${type}</h2>
+                <h2><i class="fa-solid ${type === 'Homework Task' ? 'fa-list-check' : 'fa-calendar-check'}"></i> ${type}</h2>
                 ${rows}
                 <p class="modal-note">To modify this item, visit the ${type}s page.</p>
             `;

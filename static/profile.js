@@ -1,3 +1,6 @@
+// Profile page: initializes TomSelect on the timezone picker, auto-dismisses
+// success flash messages after 3 seconds, and guards logout against active sessions.
+
 document.addEventListener('DOMContentLoaded', function() {
     new TomSelect('#timezone', {
         placeholder: 'Search timezone...',
