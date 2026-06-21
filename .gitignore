@@ -8,3 +8,4 @@ flask_session/
 study_tracker.db
 venv/
 .vscode/
+.claude/
