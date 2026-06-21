@@ -85,7 +85,7 @@ def get_user_timezone(username=None):
     return 'UTC'
 
 def send_reset_email(to_email, reset_code):
-    api_key = os.getenv('RESEND_API_KEY')
+    api_key = os.getenv('BREVO_API_KEY')
 
     # Fall back to stdout in local dev when no API key is set
     if not api_key:
@@ -94,22 +94,22 @@ def send_reset_email(to_email, reset_code):
 
     try:
         response = http_requests.post(
-            'https://api.resend.com/emails',
+            'https://api.brevo.com/v3/smtp/email',
             headers={
-                'Authorization': f'Bearer {api_key}',
+                'api-key': api_key,
                 'Content-Type': 'application/json',
             },
             json={
-                'from': 'Study Tracker <onboarding@resend.dev>',
-                'to': [to_email],
+                'sender': {'name': 'Study Tracker', 'email': 'studytracker.noreply@gmail.com'},
+                'to': [{'email': to_email}],
                 'subject': 'Password Reset Code - Study Tracker',
-                'text': f'Your password reset code is: {reset_code}\n\nIf you did not request this, please ignore this email.',
+                'textContent': f'Your password reset code is: {reset_code}\n\nIf you did not request this, please ignore this email.',
             },
             timeout=10,
         )
-        if response.status_code == 200 or response.status_code == 201:
+        if response.status_code in (200, 201):
             return True
-        print(f"Resend error: {response.status_code} {response.text}")
+        print(f"Brevo error: {response.status_code} {response.text}")
         return False
     except Exception as e:
         print(f"Failed to send email: {e}")
