@@ -17,13 +17,12 @@ depends_on = None
 
 
 def upgrade():
-    with op.batch_alter_table('user', schema=None) as batch_op:
+    # recreate="always" avoids SQLite circular dependency when adding columns + unique constraints together
+    with op.batch_alter_table('user', schema=None, recreate='always') as batch_op:
         batch_op.add_column(sa.Column('email', sa.String(), nullable=True))
         batch_op.add_column(sa.Column('google_id', sa.String(), nullable=True))
         batch_op.drop_column('security_question')
         batch_op.drop_column('security_answer')
-
-    with op.batch_alter_table('user', schema=None) as batch_op:
         batch_op.create_unique_constraint('uq_user_email', ['email'])
         batch_op.create_unique_constraint('uq_user_google_id', ['google_id'])
 
