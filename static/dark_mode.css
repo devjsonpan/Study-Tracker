@@ -303,6 +303,12 @@ html.dark-theme .fc-day-today {
     background-color: #334155 !important;
 }
 
+/* Guide card hover — light mode uses border-color: #c7d2fe but dark mode's !important blocks it */
+html.dark-theme .guide-card:hover {
+    border-color: #6366f1 !important;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2) !important;
+}
+
 /* FA icon accent color — must target <i> directly so it overrides inherited white from heading rules */
 html.dark-theme h1 i,
 html.dark-theme h2 i,
