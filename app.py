@@ -1995,10 +1995,15 @@ def cancel_reminder(item_id, item_type):
 # =============================================================================
 # React catch-all — serve index.html for any route React Router handles.
 # =============================================================================
-# Every non-API route (e.g. /home, /study, /user/:username) is a client-side
-# React Router route. Without this, a hard refresh or direct URL navigation
-# returns Flask's 404 instead of the app. The rule is: if no Flask route matched,
-# serve index.html and let React Router take over.
+# Every non-API route (e.g. /home, /study, /user/:username, /auth/callback) is a
+# client-side React Router route. Without this, a hard refresh or direct URL
+# navigation — including OAuth redirects — returns Flask's 404 instead of the app.
+#
+# WHY two handlers instead of only serve_react:
+# Flask registers a built-in static handler for static_url_path='' which matches
+# /<path:filename>. That static handler takes priority over serve_react for paths
+# that don't correspond to real files and returns 404 before serve_react runs.
+# The 404 error handler below catches those cases and completes the SPA fallback.
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -2006,11 +2011,22 @@ def serve_react(path):
     from flask import send_from_directory
     import os as _os
     dist = _os.path.join(app.root_path, 'frontend', 'dist')
-    # If the path corresponds to a real static asset (JS, CSS, images), serve it directly.
-    # Otherwise fall back to index.html so React Router can handle the route.
+    # Serve real static assets (JS, CSS, images) directly; fall back to index.html.
     file_path = _os.path.join(dist, path)
     if path and _os.path.exists(file_path):
         return send_from_directory(dist, path)
+    return send_from_directory(dist, 'index.html')
+
+@app.errorhandler(404)
+def not_found(e):
+    from flask import send_from_directory
+    # API and auth-verify routes should return JSON 404, not the SPA shell.
+    if request.path.startswith('/api/') or request.path == '/auth/verify':
+        return jsonify({'error': 'Not found'}), 404
+    # For all other paths (SPA routes like /auth/callback, /home, /user/:username)
+    # serve index.html so React Router can handle the route client-side.
+    import os as _os
+    dist = _os.path.join(app.root_path, 'frontend', 'dist')
     return send_from_directory(dist, 'index.html')
 
 # =============================================================================
