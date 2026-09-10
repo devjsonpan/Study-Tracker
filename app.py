@@ -1600,8 +1600,8 @@ def api_summary_data():
 # =============================================================================
 # Sends raw syllabus/schedule text to Gemini and returns structured tasks/events.
 # The frontend shows these as editable preview cards before the user confirms creation.
-# Rate-limited to 1 parse per user per day (in their local timezone) to stay within
-# Gemini's free API quota.
+# Rate-limited to 10 parses per user per day (in their local timezone).
+# Uses gemini-3.5-flash-lite which has 500 RPD on the free tier — sufficient for text parsing.
 
 @app.route('/api/parse', methods=['POST'])
 def api_parse():
@@ -1624,8 +1624,8 @@ def api_parse():
         user.parse_count = 0
         user.parse_date  = today_date
 
-    if user.parse_count >= 1:
-        return jsonify({'error': 'Daily limit reached — you can use Import once per day.'}), 429
+    if user.parse_count >= 10:
+        return jsonify({'error': 'Daily limit reached — you can use Import up to 10 times per day.'}), 429
 
     api_key = os.getenv('GEMINI_API_KEY')
     if not api_key:
@@ -1674,7 +1674,7 @@ Text:
     try:
         client   = genai.Client(api_key=api_key)
         response = client.models.generate_content(
-            model='gemini-3.6-flash',
+            model='gemini-3.5-flash-lite',
             contents=prompt,
             config=genai_types.GenerateContentConfig(
                 response_mime_type='application/json',
