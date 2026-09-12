@@ -5,7 +5,11 @@
 # Flask app. Keeps the image small and the runtime surface tiny.
 
 # ---- Stage 1: build the React frontend ------------------------------------
-FROM node:22-alpine AS frontend
+# Base images are pulled from AWS ECR Public, which mirrors the identical
+# Docker official images. Railway's builder intermittently times out reaching
+# Docker Hub (registry-1.docker.io), and ECR Public also sidesteps Hub's
+# anonymous pull rate limits. Swap back to `node:22-alpine` if ever needed.
+FROM public.ecr.aws/docker/library/node:22-alpine AS frontend
 WORKDIR /build
 
 # Copy only the lockfiles first so `npm ci` is cached until deps change.
@@ -19,7 +23,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # ---- Stage 2: Python runtime ----------------------------------------------
-FROM python:3.13-slim
+FROM public.ecr.aws/docker/library/python:3.13-slim
 WORKDIR /app
 
 # Same caching trick: deps before code, so editing app.py doesn't reinstall pip.
