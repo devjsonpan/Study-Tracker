@@ -39,8 +39,17 @@ COPY --from=frontend /build/dist/ ./frontend/dist/
 EXPOSE 8080
 
 # Runs on container start, not build. Shell form so ${PORT} expands.
+#
+# Migration step: PGOPTIONS sets a Postgres lock_timeout so a migration blocked
+# by another session fails fast with a clear error instead of hanging forever
+# (which silently prevented gunicorn from ever starting). `timeout 120` is a
+# hard backstop. If the step fails we log loudly and still start the server,
+# so a transient DB hiccup doesn't take the whole site down. Watch Deploy Logs
+# for the "!!!" line and fix the cause; do not treat it as normal.
+#
 # Railway injects PORT at runtime; 8080 matches Railway's default if it doesn't.
 # Bind to [::] (dual-stack), NOT 0.0.0.0: Railway's edge proxy reaches the
 # container over IPv6, and 0.0.0.0 only listens on IPv4, so every request
 # would time out with "connection dial timeout" / 502.
-CMD flask db upgrade && gunicorn --worker-class gthread -w 1 --threads 4 --bind [::]:${PORT:-8080} app:app
+# `exec` makes gunicorn PID 1 so it receives Railway's stop signals directly.
+CMD PGOPTIONS="-c lock_timeout=30s -c statement_timeout=90s" timeout 120 flask db upgrade || echo "!!! flask db upgrade failed or timed out (exit $?); starting server anyway"; exec gunicorn --worker-class gthread -w 1 --threads 4 --bind [::]:${PORT:-8080} app:app
