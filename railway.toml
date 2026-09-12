@@ -1,2 +1,5 @@
-[deploy]
-startCommand = "flask db upgrade && gunicorn --worker-class gthread -w 1 --threads 4 app:app"
+# Railway build/deploy config. The Dockerfile is the single source of truth for
+# how the image is built and started, so no startCommand is set here; it would
+# override the Dockerfile's CMD and split the config across two files.
+[build]
+builder = "DOCKERFILE"

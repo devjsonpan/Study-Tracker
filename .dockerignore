@@ -1,0 +1,26 @@
+# Keep the Docker build context small and secret-free.
+# Anything listed here is invisible to COPY, so it can never end up in the image.
+
+# Secrets and local runtime state
+app.env
+.env
+instance/
+flask_session/
+study_tracker.db
+
+# Dependencies and build output: rebuilt inside the container, never copied in
+frontend/node_modules/
+frontend/dist/
+venv/
+__pycache__/
+*.pyc
+
+# Tooling and docs that have no business in a runtime image
+.git/
+.vscode/
+.claude/
+.playwright-mcp/
+.mental/
+*.md
+nixpacks.toml
+railway.toml
