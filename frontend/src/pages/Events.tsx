@@ -109,14 +109,13 @@ function EditForm({
 
 // --- Sort logic ---
 
-type EventSort = 'start_asc' | 'start_desc' | 'starred' | 'az' | 'not_completed'
+type EventSort = 'start_asc' | 'start_desc' | 'starred' | 'az'
 
 const EVENT_SORTS: { key: EventSort; label: string }[] = [
   { key: 'start_asc',    label: 'Start date' },
   { key: 'start_desc',   label: 'Latest first' },
   { key: 'starred',      label: 'Starred' },
   { key: 'az',           label: 'A–Z' },
-  { key: 'not_completed', label: 'Incomplete first' },
 ]
 
 function sortEvents(events: Event[], sort: EventSort): Event[] {
@@ -125,7 +124,6 @@ function sortEvents(events: Event[], sort: EventSort): Event[] {
     if (sort === 'start_desc')   return new Date(b.start_datetime).getTime() - new Date(a.start_datetime).getTime()
     if (sort === 'starred')      return (+b.is_important - +a.is_important) || new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime()
     if (sort === 'az')           return a.event_name.localeCompare(b.event_name)
-    if (sort === 'not_completed') return (+a.is_completed - +b.is_completed) || new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime()
     return 0
   })
 }

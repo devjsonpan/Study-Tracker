@@ -88,14 +88,13 @@ function EditForm({
 
 // --- Sort logic ---
 
-type HomeworkSort = 'deadline_asc' | 'deadline_desc' | 'starred' | 'az' | 'not_completed'
+type HomeworkSort = 'deadline_asc' | 'deadline_desc' | 'starred' | 'az'
 
 const HOMEWORK_SORTS: { key: HomeworkSort; label: string }[] = [
   { key: 'deadline_asc',  label: 'Due date' },
   { key: 'deadline_desc', label: 'Latest first' },
   { key: 'starred',       label: 'Starred' },
   { key: 'az',            label: 'A–Z' },
-  { key: 'not_completed', label: 'Incomplete first' },
 ]
 
 function sortTasks(tasks: Task[], sort: HomeworkSort): Task[] {
@@ -104,7 +103,6 @@ function sortTasks(tasks: Task[], sort: HomeworkSort): Task[] {
     if (sort === 'deadline_desc') return new Date(b.due_date).getTime() - new Date(a.due_date).getTime()
     if (sort === 'starred')       return (+b.is_important - +a.is_important) || new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
     if (sort === 'az')            return a.task_name.localeCompare(b.task_name)
-    if (sort === 'not_completed') return (+a.is_completed - +b.is_completed) || new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
     return 0
   })
 }
