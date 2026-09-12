@@ -34,7 +34,13 @@ COPY static/ ./static/
 # (static_folder='frontend/dist' in app.py), so the path must match exactly.
 COPY --from=frontend /build/dist/ ./frontend/dist/
 
+# Documents the port Railway routes to (its default target port). Not enforced
+# by Docker, but keeps the contract visible to whoever reads this file.
+EXPOSE 8080
+
 # Runs on container start, not build. Shell form so ${PORT} expands.
-# Railway injects PORT at runtime; 8000 is the fallback for local `docker run`.
-# 0.0.0.0 accepts traffic from outside the container (127.0.0.1 would not).
-CMD flask db upgrade && gunicorn --worker-class gthread -w 1 --threads 4 --bind 0.0.0.0:${PORT:-8000} app:app
+# Railway injects PORT at runtime; 8080 matches Railway's default if it doesn't.
+# Bind to [::] (dual-stack), NOT 0.0.0.0: Railway's edge proxy reaches the
+# container over IPv6, and 0.0.0.0 only listens on IPv4, so every request
+# would time out with "connection dial timeout" / 502.
+CMD flask db upgrade && gunicorn --worker-class gthread -w 1 --threads 4 --bind [::]:${PORT:-8080} app:app
