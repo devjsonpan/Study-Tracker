@@ -276,7 +276,7 @@ export default function Homework() {
       {tasks.length > 0 && sorted.length === 0 && (
         <div className="text-center py-20">
           <p className="font-bold text-slate-400">
-            {q ? `No tasks match "${search}".` : 'All tasks completed — nice.'}
+            {q ? `No tasks match "${search}".` : 'All tasks completed — nice!'}
           </p>
         </div>
       )}

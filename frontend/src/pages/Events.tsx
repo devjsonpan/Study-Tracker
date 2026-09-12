@@ -315,7 +315,9 @@ export default function Events() {
       )}
       {events.length > 0 && sorted.length === 0 && (
         <div className="text-center py-20">
-          <p className="font-bold text-slate-400">No events match "{search}".</p>
+          <p className="font-bold text-slate-400">
+            {q ? `No events match "${search}".` : 'All events completed — nice!'}
+          </p>
         </div>
       )}
 
