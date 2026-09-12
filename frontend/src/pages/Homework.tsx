@@ -117,6 +117,16 @@ export default function Homework() {
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [sort, setSort] = useState<HomeworkSort>('deadline_asc')
   const [search, setSearch] = useState('')
+  // Hide-completed toggle — persisted so the preference survives reloads.
+  // Completed items stay in the DB (and on the calendar); this only filters the list view.
+  const [hideCompleted, setHideCompleted] = useState(() => {
+    try { return localStorage.getItem('homework.hideCompleted') === '1' } catch { return false }
+  })
+  function toggleHideCompleted() {
+    const next = !hideCompleted
+    setHideCompleted(next)
+    try { localStorage.setItem('homework.hideCompleted', next ? '1' : '0') } catch { /* storage blocked — in-memory only */ }
+  }
 
   const { pathname } = useLocation()
   const theme = getTheme(pathname)
@@ -181,14 +191,16 @@ export default function Homework() {
   )
 
   const tasks = data!
+  const completedCount = tasks.filter(t => t.is_completed).length
+  const visible = hideCompleted ? tasks.filter(t => !t.is_completed) : tasks
   const q = search.trim().toLowerCase()
   const filtered = q
-    ? tasks.filter(t =>
+    ? visible.filter(t =>
         t.task_name.toLowerCase().includes(q) ||
         t.course.toLowerCase().includes(q) ||
         (t.description ?? '').toLowerCase().includes(q)
       )
-    : tasks
+    : visible
   const sorted = sortTasks(filtered, sort)
 
   return (
@@ -220,6 +232,15 @@ export default function Homework() {
             {label}
           </button>
         ))}
+        {/* Hide-completed toggle — sits right of the sort pills */}
+        <button onClick={toggleHideCompleted}
+          className="ml-auto px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer"
+          style={hideCompleted
+            ? { background: theme.accent, color: '#FFFFFF' }
+            : { background: theme.activeBg, color: theme.accent }
+          }>
+          {hideCompleted ? `Show completed (${completedCount})` : 'Hide completed'}
+        </button>
       </div>
 
       {/* Add task form */}
@@ -256,7 +277,9 @@ export default function Homework() {
       )}
       {tasks.length > 0 && sorted.length === 0 && (
         <div className="text-center py-20">
-          <p className="font-bold text-slate-400">No tasks match "{search}".</p>
+          <p className="font-bold text-slate-400">
+            {q ? `No tasks match "${search}".` : 'All tasks completed — nice.'}
+          </p>
         </div>
       )}
 

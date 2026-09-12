@@ -139,6 +139,16 @@ export default function Events() {
   const [formError, setFormError] = useState<string | null>(null)
   const [sort, setSort] = useState<EventSort>('start_asc')
   const [search, setSearch] = useState('')
+  // Hide-completed toggle — persisted so the preference survives reloads.
+  // Completed items stay in the DB (and on the calendar); this only filters the list view.
+  const [hideCompleted, setHideCompleted] = useState(() => {
+    try { return localStorage.getItem('events.hideCompleted') === '1' } catch { return false }
+  })
+  function toggleHideCompleted() {
+    const next = !hideCompleted
+    setHideCompleted(next)
+    try { localStorage.setItem('events.hideCompleted', next ? '1' : '0') } catch { /* storage blocked — in-memory only */ }
+  }
 
   const { pathname } = useLocation()
   const theme = getTheme(pathname)
@@ -213,14 +223,16 @@ export default function Events() {
   )
 
   const events = data!
+  const completedCount = events.filter(e => e.is_completed).length
+  const visible = hideCompleted ? events.filter(e => !e.is_completed) : events
   const q = search.trim().toLowerCase()
   const filtered = q
-    ? events.filter(e =>
+    ? visible.filter(e =>
         e.event_name.toLowerCase().includes(q) ||
         (e.location ?? '').toLowerCase().includes(q) ||
         (e.description ?? '').toLowerCase().includes(q)
       )
-    : events
+    : visible
   const sorted = sortEvents(filtered, sort)
 
   return (
@@ -252,6 +264,15 @@ export default function Events() {
             {label}
           </button>
         ))}
+        {/* Hide-completed toggle — sits right of the sort pills */}
+        <button onClick={toggleHideCompleted}
+          className="ml-auto px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer"
+          style={hideCompleted
+            ? { background: theme.accent, color: '#FFFFFF' }
+            : { background: theme.activeBg, color: theme.accent }
+          }>
+          {hideCompleted ? `Show completed (${completedCount})` : 'Hide completed'}
+        </button>
       </div>
 
       {/* Add event form */}
