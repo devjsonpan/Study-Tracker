@@ -3,8 +3,10 @@
 # TEMPORARY ROLLBACK (2026-09-12): using Railway's default Railpack builder and
 # the committed frontend/dist, because Railway's Docker builder could not reach
 # Docker Hub and the Dockerfile-based deploy left the site down. The Dockerfile
-# is kept in the repo for the next attempt. To go back to Docker: set builder
-# to "DOCKERFILE", remove startCommand, and stop committing frontend/dist.
+# is kept as Dockerfile.wip because Railway ALWAYS builds with a Dockerfile if
+# one exists at the root, regardless of the builder key. To go back to Docker:
+# rename it to Dockerfile, set builder = "DOCKERFILE", remove startCommand,
+# and stop committing frontend/dist.
 #
 # Railpack only detects Python here, so frontend/dist MUST be rebuilt locally
 # (`npm --prefix frontend run build`) and committed before every deploy.
